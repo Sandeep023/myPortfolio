@@ -56,7 +56,7 @@ const ContactForm = () => {
 
 
   useEffect(() => {
-    emailjs.init("EehQP3OCAFUPh8ECi");
+    emailjs.init("***set your public code here***");
   })
 
   function handleSubmit(event) {
