@@ -66,6 +66,16 @@ const NavBar = (props) => {
 							>
 								<Link to="/myPortfolio/contact">Contact</Link>
 							</li>
+							<li
+								className={
+									active === "resume"
+										? "nav-item active"
+										: "nav-item"
+								}
+							>
+								<Link target="_blank" to="https://drive.google.com/file/d/16oSaJgE8x9SvWhpA0VTxDNr1N0AXHuDV/view?usp=share_link">
+									Resume</Link>
+							</li>
 						</ul>
 					</div>
 				</nav>

@@ -82,7 +82,7 @@ const ContactForm = () => {
 
   return (
       <React.Fragment class="contact-form-container">
-          <h2 onClick={handleClick}>Contact Me</h2>
+          <h2 onClick={handleClick}>Message Me</h2>
           <form onSubmit={handleSubmit}>
               <Stack spacing={2} direction="row" sx={{marginBottom: 4}}>
                   <TextField

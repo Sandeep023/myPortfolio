@@ -57,7 +57,7 @@ const ExpierienceCard = () => {
             </TimelineItem>
             <TimelineItem>
                 <TimelineOppositeContent color="text.secondary" className="exp-date">
-                    JUN 2023 - AUG 2023
+                    JUN 2022 - AUG 2022
                 </TimelineOppositeContent>
                 <TimelineSeparator>
                     <TimelineDot color="success" />
