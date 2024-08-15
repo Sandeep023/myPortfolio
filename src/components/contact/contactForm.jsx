@@ -56,7 +56,7 @@ const ContactForm = () => {
 
 
   useEffect(() => {
-    emailjs.init("***set your public code here***");
+    emailjs.init("EehQP3OCAFUPh8ECi");
   })
 
   function handleSubmit(event) {
@@ -82,7 +82,7 @@ const ContactForm = () => {
 
   return (
       <React.Fragment class="contact-form-container">
-          <h2 onClick={handleClick}>Message Me</h2>
+          {/* <h2 onClick={handleClick}>Message Me</h2>
           <form onSubmit={handleSubmit}>
               <Stack spacing={2} direction="row" sx={{marginBottom: 4}}>
                   <TextField
@@ -137,7 +137,7 @@ const ContactForm = () => {
                 />
               </Stack>
               <Button variant="outlined" color="secondary" type="submit">Submit</Button>
-          </form>
+          </form> */}
           <Snackbar
             open={open}
             autoHideDuration={5000}
