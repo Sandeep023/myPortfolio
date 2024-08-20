@@ -26,7 +26,7 @@ const INFO = {
 	},
 
 	about: {
-		title: "I'm Sandeep Varma living in Corpus Christi Texas, where I am trying to learn more and beyond",
+		title: "I'm Sandeep Varma, constantly seeking to expand my knowledge and explore beyond the familiar horizons",
 		description:
 			`I am a proficient Full-Stack Developer with a solid foundation in computer science, holding a Master of Science degree from Texas A&M University-Corpus Christi and a Bachelor of Technology from the Indian Institute of Information Technology SriCity. With extensive experience spanning from 2018 to the present, I have expertise in all phases of the Software Development Life Cycle (SDLC), specializing in the design, development, and optimization of Spring applications and ReactJS-based full-stack web applications.
 			
