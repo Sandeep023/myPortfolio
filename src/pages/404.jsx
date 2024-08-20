@@ -20,11 +20,11 @@ const Notfound = () => {
 			<div className="not-found page-content">
 				<NavBar />
 				<div className="content-wrapper">
-					<div className="notfound-logo-container">
+					{/* <div className="notfound-logo-container">
 						<div className="projects-logo">
 							<Logo width={46} />
 						</div>
-					</div>
+					</div> */}
 					<div className="notfound-container">
 						<div className="notfound-message">
 							<div className="notfound-title">

@@ -1,9 +1,9 @@
 const INFO = {
 	main: {
-		title: "Reactfolio website",
+		title: "My Resume",
 		name: "Sandeep Varma Indukuri.",
 		email: "sandeepvarma531@gmail.com",
-		logo: "logo1.jpg",
+		// logo: "logo1.jpg",
 	},
 
 	socials: {
@@ -18,8 +18,8 @@ const INFO = {
 	homepage: {
 		title: "Full-stack web and mobile app developer, with all round expierience.",
 		description:
-			`I am a Full-Stack Developer with an MS in Computer Science from Texas A&M University-Corpus Christi, boasts extensive expertise in SDLC, 
-			specializing in developing and optimizing Spring and ReactJS-based applications. 
+			`I am a Full-Stack Developer with a Master's in Computer Science from Texas A&M University-Corpus Christi, 
+			boasts extensive expertise in SDLC, specializing in developing and optimizing Spring and ReactJS-based applications. 
 			Demonstrating rapid leadership ascent, I have led critical projects enhancing user interfaces and spearheading advancements in Computer Vision, ML, and AI, 
 			contributing significantly to technological progress and fostering professional growth. 
 			My technical acumen spans a wide range of tools and languages, including Java, ReactJS, Python, and AWS services.`,

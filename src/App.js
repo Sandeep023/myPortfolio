@@ -25,17 +25,12 @@ function App() {
 		<div className="App">
 			<Routes>
 				<Route path="/" element={<Homepage />} />
-				<Route path="/myPortfolio" element={<Homepage />} />
 				<Route path="/about" element={<About />} />
-				<Route path="/myPortfolio/about" element={<About />} />
 				<Route path="/projects" element={<Projects />} />
-				<Route path="/myPortfolio/projects" element={<Projects />} />
 				{/* <Route path="/articles" element={<Articles />} /> */}
 				<Route path="/expierience" element={<Expierience />} />
-				<Route path="/myPortfolio/expierience" element={<Expierience />} />
-				<Route path="/article/:slug" element={<ReadArticle />} />
+				{/* <Route path="/article/:slug" element={<ReadArticle />} /> */}
 				<Route path="/contact" element={<Contact />} />
-				<Route path="/myPortfolio/contact" element={<Contact />} />
 				<Route path="*" element={<Notfound />} />
 			</Routes>
 		</div>

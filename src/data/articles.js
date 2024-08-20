@@ -2,16 +2,14 @@ import React from "react";
 
 function article_1() {
 	return {
-		date: "7 May 2023",
-		title: "The Benefits of Cloud Computing",
+		date: "10 August 2024",
+		title: "Creating your own Portfolio, AWS, React",
 		description:
-			"Cloud computing offers a range of benefits, including cost savings and increased flexibility. Find out why more businesses are turning to the cloud.",
+			"This article will give you a basic idea on how to deploy your ReactJS app in AWS EC2, with your own domain name.",
 		keywords: [
-			"The Benefits of Cloud Computing",
-			"Tharindu",
-			"Tharindu N",
-			"Tharindu Nayanajith",
+			"ReactJS", "React", "AWS", "AWS EC2", "AWS Route 53"
 		],
+		link: `https://medium.com/@sandeepvarma531/host-your-profile-in-the-aws-ec2-instance-and-link-it-to-your-domain-url-c7e7bc91a70f`,
 		style: `
 				.article-content {
 					display: flex;
@@ -60,6 +58,6 @@ function article_2() {
 	};
 }
 
-const myArticles = [];
+const myArticles = [article_1];
 
 export default myArticles;
