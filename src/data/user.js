@@ -47,11 +47,18 @@ const INFO = {
 
 	projects: [
 		{
+			title: "E-Commerce",
+			description:
+				"An E-commerce Platform wher any user can register as seller and post things they want to sell, others can search and place order. Used frameworks like AWS services, ReactJs, JAVA",
+			logo: "https://cdn.jsdelivr.net/npm/programming-languages-logos@0.0.3/src/java/java.png",
+			linkText: "View Project",
+			link: "https://github.com",
+		},
+		{
 			title: "Outlier Detection",
 			description:
 				"Outlier detection using a distance-based algorithm, forming clusters using a Minimum Spanning tree. This is developed using different libraries in python",
 			logo: "https://cdn.jsdelivr.net/npm/programming-languages-logos/src/python/python.png",
-			// logo: "https://cdn.jsdelivr.net/npm/programming-languages-logos/src/javascript/javascript.png",
 			linkText: "View Project",
 			link: "https://github.com",
 		},

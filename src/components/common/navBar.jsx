@@ -73,7 +73,7 @@ const NavBar = (props) => {
 										: "nav-item"
 								}
 							>
-								<Link target="_blank" to="https://drive.google.com/file/d/16oSaJgE8x9SvWhpA0VTxDNr1N0AXHuDV/view?usp=share_link">
+								<Link target="_blank" to="https://drive.google.com/file/d/1eCo3AHnicI8ha96MYSfL9sRk9ByH_jsg/view?usp=share_link">
 									Resume</Link>
 							</li>
 						</ul>
