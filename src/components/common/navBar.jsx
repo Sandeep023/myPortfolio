@@ -73,7 +73,7 @@ const NavBar = (props) => {
 										: "nav-item"
 								}
 							>
-								<Link target="_blank" to="https://drive.google.com/file/d/1eCo3AHnicI8ha96MYSfL9sRk9ByH_jsg/view?usp=share_link">
+								<Link target="_blank" to="https://sandeepindukuri.s3.us-west-1.amazonaws.com/SandeepResume.pdf">
 									Resume</Link>
 							</li>
 						</ul>
