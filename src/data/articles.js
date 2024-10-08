@@ -39,16 +39,24 @@ function article_1() {
 
 function article_2() {
 	return {
-		date: "7 May 2023",
-		title: "Artificial Intelligence in Healthcare",
+		date: "07 Oct 2024",
+		title: "Navigating AWS: Key Insights from My Udemy Course Experience",
 		description:
-			"AI is transforming the healthcare industry, from improving patient outcomes to streamlining operations. Discover the latest applications of this game-changing technology.",
-		style: ``,
+			"As I delve deeper into the world of Amazon Web Services (AWS), I’ve taken on the challenge of summarizing my learnings from the “AWS Certified Developer — Associate” course on Udemy. My goal is to distill key concepts and highlights into digestible notes that can serve as quick references for fellow developers.",
+		style: `
+				.article-content {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+				}
+
+				.randImage {
+					align-self: center;
+					outline: 2px solid red;
+				}
+				`,
+		link: `https://medium.com/@sandeepvarma531/navigating-aws-key-insights-from-my-udemy-course-experience-48cb49c4ae69`,
 		keywords: [
-			"Artificial Intelligence in Healthcare",
-			"Tharindu",
-			"Tharindu N",
-			"Tharindu Nayanajith",
 		],
 		body: (
 			<React.Fragment>
@@ -58,6 +66,6 @@ function article_2() {
 	};
 }
 
-const myArticles = [article_1];
+const myArticles = [article_2, article_1];
 
 export default myArticles;
