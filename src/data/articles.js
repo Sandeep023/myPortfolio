@@ -39,7 +39,7 @@ function article_1() {
 
 function article_2() {
 	return {
-		date: "07 Oct 2024",
+		date: "05 Oct 2024",
 		title: "Navigating AWS: Key Insights from My Udemy Course Experience",
 		description:
 			"As I delve deeper into the world of Amazon Web Services (AWS), I’ve taken on the challenge of summarizing my learnings from the “AWS Certified Developer — Associate” course on Udemy. My goal is to distill key concepts and highlights into digestible notes that can serve as quick references for fellow developers.",
@@ -66,6 +66,35 @@ function article_2() {
 	};
 }
 
-const myArticles = [article_2, article_1];
+function article_3() {
+	return {
+		date: "07 Oct 2024",
+		title: "Mastering AWS IAM: Essential Guide for Developers",
+		description:
+			"Navigating the complexities of AWS Identity and Access Management (IAM) can seem daunting. Whether you’re new to AWS or looking to tighten your security practices, understanding IAM is crucial. This guide, based on expert insights, demystifies IAM, empowering developers with the knowledge to secure their AWS environments effectively.",
+		style: `
+				.article-content {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+				}
+
+				.randImage {
+					align-self: center;
+					outline: 2px solid red;
+				}
+				`,
+		link: `https://medium.com/@sandeepvarma531/mastering-aws-iam-essential-guide-for-developers-03e9264980ac`,
+		keywords: [
+		],
+		body: (
+			<React.Fragment>
+				<h1>Content of article 2</h1>
+			</React.Fragment>
+		),
+	};
+}
+
+const myArticles = [article_2, article_3, article_1];
 
 export default myArticles;
