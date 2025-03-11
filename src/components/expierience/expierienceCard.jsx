@@ -38,10 +38,41 @@ const ExpierienceCard = () => {
         >
             <TimelineItem>
                 <TimelineOppositeContent color="text.secondary" className="exp-date">
-                    APR 2023 - To Date
+                    MAR 2025 - To Date
                 </TimelineOppositeContent>
                 <TimelineSeparator>
                     <TimelineDot variant="outlined" />
+                    <TimelineConnector />
+                </TimelineSeparator>
+                <TimelineContent className="exp-description">
+                    <ul>
+                        <li>
+                            Joined Geico's Cluster Management team, where I collaborate closely on strategic cluster management and migration initiatives.
+                        </li>
+                        <li>
+                            My responsibilities include optimizing infrastructure resources and implementing cost-effective solutions that significantly reduce operational expenses.
+                        </li>
+                        <li>
+                            By streamlining cluster operations and applying innovative migration strategies, I help the organization maintain robust systems while achieving substantial cost savings and operational efficiencies.
+                        </li>
+                        {/* <li>
+                            Improved the maintainability of the project by implementing and improving exception handling and collection APIs. Involved in sprint planning for the estimation of efforts for user stories and bugs.
+                        </li>
+                        <li>
+                            Developed and executed comprehensive test cases using JUnit and Mockito, enhancing code coverage to over 90%, significantly improving code quality and reducing post-deployment issues by over 40%.
+                        </li>
+                        <li>
+                            Produced over 10+ complex Splunk queries to generate detailed, actionable reports from log data, providing critical insights that directly influenced strategic business decisions and significantly enhanced operational efficiencies.
+                        </li> */}
+                    </ul>
+                </TimelineContent>
+            </TimelineItem>
+            <TimelineItem>
+                <TimelineOppositeContent color="text.secondary" className="exp-date">
+                    APR 2023 - Feb 2025
+                </TimelineOppositeContent>
+                <TimelineSeparator>
+                    <TimelineDot color="success" />
                     <TimelineConnector />
                 </TimelineSeparator>
                 <TimelineContent className="exp-description">
