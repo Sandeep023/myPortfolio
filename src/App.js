@@ -13,6 +13,7 @@ import Expierience from "./pages/expierience";
 
 import { TRACKING_ID } from "./data/tracking";
 import "./app.css";
+import Workouts from "./pages/workouts";
 
 function App() {
 	useEffect(() => {
@@ -31,6 +32,7 @@ function App() {
 				<Route path="/expierience" element={<Expierience />} />
 				{/* <Route path="/article/:slug" element={<ReadArticle />} /> */}
 				<Route path="/contact" element={<Contact />} />
+				<Route path="/workouts" element={<Workouts />} />
 				<Route path="*" element={<Notfound />} />
 			</Routes>
 		</div>

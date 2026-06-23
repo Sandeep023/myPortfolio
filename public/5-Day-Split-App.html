@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>5-Day Split</title>
+<!-- Installable web app -->
+<meta name="theme-color" content="#1a1a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="5-Day Split">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Crect width='180' height='180' rx='40' fill='%231a1a2e'/%3E%3Cg fill='%23fff'%3E%3Crect x='38' y='80' width='14' height='20' rx='3'/%3E%3Crect x='52' y='70' width='14' height='40' rx='3'/%3E%3Crect x='66' y='86' width='48' height='8' rx='4'/%3E%3Crect x='114' y='70' width='14' height='40' rx='3'/%3E%3Crect x='128' y='80' width='14' height='20' rx='3'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;padding:10px;color:#1a1a1a;font-size:14px}
+.days-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:12px}
+.day-btn{padding:9px 4px;border-radius:11px;border:2px solid #dde1e7;background:#fff;cursor:pointer;text-align:center;transition:all .15s}
+.day-btn .da{font-size:13px;font-weight:700;color:#888;display:block;margin-bottom:2px}
+.day-btn .df{font-size:9px;color:#aaa;line-height:1.3;display:block}
+.day-btn.active{background:#1a1a2e;border-color:#1a1a2e}
+.day-btn.active .da{color:#fff}
+.day-btn.active .df{color:#9ab}
+.dhb{background:#1a1a2e;border-radius:11px;padding:11px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.dhb .dd{font-size:17px;font-weight:800;color:#fff}
+.dhb .df2{font-size:11px;color:#8899bb;margin-top:1px}
+.dhb .db{font-size:10px;background:rgba(255,255,255,0.12);color:#fff;padding:3px 9px;border-radius:20px;font-weight:600;white-space:nowrap}
+.mb{margin-bottom:9px;border-radius:11px;overflow:hidden;border:1.5px solid #e0e3e8}
+.mh{padding:10px 13px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center}
+.mh.m1{background:#1a3a5c;color:#fff}
+.mh.m2{background:#1a5c3a;color:#fff}
+.mh.mc{background:#c0390f;color:#fff}
+.mhc{font-size:10px;opacity:.65;font-weight:500;margin-left:auto}
+.er{background:#fff;border-top:1px solid #f0f2f5;cursor:pointer}
+.er:hover{background:#f7f9ff}
+.er.open{background:#f5f8ff}
+.et{padding:9px 13px;display:flex;align-items:flex-start;gap:9px}
+.en{font-size:12px;font-weight:800;min-width:20px;padding-top:2px}
+.nc1{color:#1a3a5c}.nc2{color:#1a5c3a}.ncc{color:#c0390f}
+.ec{flex:1}
+.ename{font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:2px;line-height:1.3}
+.ealts{font-size:11px;color:#999;margin-bottom:2px}
+.etgt{font-size:11px;font-weight:600}
+.tc1{color:#1a3a5c}.tc2{color:#1a5c3a}.tcc{color:#c0390f}
+.sc{display:inline-block;font-size:10px;padding:2px 7px;border-radius:7px;font-weight:700;margin-left:5px;vertical-align:middle}
+.sc1{background:#e8f0fb;color:#1a3a5c}
+.sc2{background:#e8f5ee;color:#1a5c3a}
+.scc{background:#fce8e3;color:#c0390f}
+.chev{font-size:11px;color:#bbb;margin-left:auto;padding-top:2px;transition:transform .2s}
+.er.open .chev{transform:rotate(180deg)}
+.ep{display:none;border-top:1px solid #eef0f8;background:#f5f8ff}
+.er.open .ep{display:block}
+.ep-inner{padding:10px 13px}
+
+/* VIDEO SEARCH RESULTS */
+.vsearch-btn{width:100%;padding:10px;background:#FF0000;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.vsearch-btn:hover{background:#cc0000}
+.vlinks{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.vlink{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #e0e3e8;border-radius:9px;padding:9px 12px;text-decoration:none;color:#1a1a1a;transition:all .12s}
+.vlink:hover{border-color:#FF0000;background:#fff8f8}
+.vlink-icon{width:36px;height:36px;background:#FF0000;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.vlink-icon svg{margin-left:2px}
+.vlink-text{flex:1}
+.vlink-title{font-size:12px;font-weight:600;color:#1a1a2e;margin-bottom:2px;line-height:1.3}
+.vlink-sub{font-size:10px;color:#888}
+.vdivider{text-align:center;font-size:10px;color:#aaa;margin:8px 0;font-weight:600;letter-spacing:.05em}
+
+/* STEPS */
+.sbox{background:#fff;border-radius:9px;padding:10px 12px;border:1px solid #e8eaf0;margin-bottom:10px}
+.stitle{font-size:10px;font-weight:700;color:#1a1a2e;margin-bottom:7px;text-transform:uppercase;letter-spacing:.05em}
+.step{display:flex;gap:7px;margin-bottom:5px;font-size:11px;color:#555;line-height:1.4}
+.snum{background:#1a1a2e;color:#fff;border-radius:50%;width:15px;height:15px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0;margin-top:1px}
+
+/* SCHEDULE */
+.schbox{background:#fff;border-radius:9px;padding:10px 12px;border:1px solid #e8eaf0}
+.schgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:7px}
+.schcard{background:#f5f7fa;border-radius:7px;padding:6px 5px;text-align:center}
+.schl{font-size:9px;color:#999;text-transform:uppercase;font-weight:600;margin-bottom:1px}
+.schv{font-size:14px;font-weight:800;color:#1a1a2e}
+.schfull{grid-column:1/-1}
+.schsub{font-size:9px;color:#888;margin-top:1px}
+.tipbox{background:#fff;border:1.5px solid #e0e3e8;border-radius:11px;padding:11px 13px;margin-top:9px;font-size:12px;color:#555;line-height:1.6}
+.legend{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.li{display:flex;align-items:center;gap:4px;font-size:10px;color:#666;background:#fff;padding:3px 9px;border-radius:20px;border:1px solid #e0e3e8}
+.ld{width:9px;height:9px;border-radius:2px}
+
+/* APP SHELL — safe areas for notch/home indicator */
+body{padding-top:max(10px,env(safe-area-inset-top));padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right));padding-bottom:max(10px,env(safe-area-inset-bottom))}
+
+/* DAY PROGRESS BAR */
+.prog{background:#fff;border-radius:11px;padding:10px 13px;margin-bottom:10px;border:1.5px solid #e0e3e8}
+.prog-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.prog-label{font-size:11px;font-weight:700;color:#1a1a2e;text-transform:uppercase;letter-spacing:.05em}
+.prog-count{font-size:11px;font-weight:700;color:#1a5c3a}
+.prog-track{height:7px;background:#eef0f5;border-radius:5px;overflow:hidden}
+.prog-fill{height:100%;background:#1a5c3a;border-radius:5px;width:0;transition:width .3s ease}
+.prog-reset{background:none;border:none;font-size:10px;color:#bbb;cursor:pointer;padding:0;text-decoration:underline}
+
+/* SET TRACKER DOTS */
+.sets-row{display:flex;align-items:flex-start;gap:7px;flex-wrap:wrap;padding:2px 13px 11px 13px}
+.sets-lbl{font-size:10px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.05em;width:100%;margin-bottom:1px}
+.set-cell{width:72px;border:2px solid #dde1e7;background:#fff;border-radius:10px;padding:5px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:border-color .12s,background .12s}
+.set-cell.done{border-color:#1a5c3a;background:#f3faf6}
+.set-cell-lbl{font-size:9px;font-weight:800;color:#999;text-transform:uppercase;letter-spacing:.04em}
+.set-cell.done .set-cell-lbl{color:#1a5c3a}
+.set-w{width:100%;border:1px solid #e0e3e8;border-radius:6px;padding:5px 2px;font-size:14px;font-weight:700;text-align:center;color:#1a1a2e;background:#fff;-webkit-appearance:none;-moz-appearance:textfield}
+.set-w:focus{outline:none;border-color:#1a3a5c}
+.set-w::-webkit-outer-spin-button,.set-w::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.set-check{width:100%;border:none;border-radius:6px;padding:5px 0;font-size:10px;font-weight:800;cursor:pointer;background:#eef0f5;color:#999;text-transform:uppercase;letter-spacing:.03em;-webkit-tap-highlight-color:transparent}
+.set-cell.done .set-check{background:#1a5c3a;color:#fff}
+.set-check:active{transform:scale(.95)}
+.done-badge{font-size:10px;font-weight:700;color:#1a5c3a;width:100%;margin-top:2px}
+.unit-toggle{display:inline-flex;border:1.5px solid #dde1e7;border-radius:7px;overflow:hidden}
+.unit-toggle button{border:none;background:#fff;color:#999;font-size:10px;font-weight:800;padding:5px 11px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.unit-toggle button.on{background:#1a1a2e;color:#fff}
+
+/* VIEW TOGGLE */
+.view-toggle{display:flex;background:#fff;border:1.5px solid #dde1e7;border-radius:9px;overflow:hidden;margin-bottom:10px}
+.view-toggle button{flex:1;border:none;background:#fff;color:#888;font-size:12px;font-weight:800;padding:10px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.view-toggle button.on{background:#1a1a2e;color:#fff}
+
+/* FINISH WORKOUT */
+.finish-btn{width:100%;padding:14px;background:#1a5c3a;color:#fff;border:none;border-radius:11px;font-size:14px;font-weight:800;cursor:pointer;margin-top:11px;-webkit-tap-highlight-color:transparent}
+.finish-btn:active{opacity:.9}
+
+/* HISTORY */
+.h-count{font-size:11px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:9px}
+.empty{background:#fff;border:1.5px dashed #d5d9e0;border-radius:11px;padding:24px 18px;font-size:13px;color:#888;line-height:1.6;text-align:center}
+.h-card{background:#fff;border:1.5px solid #e0e3e8;border-radius:11px;padding:12px 13px;margin-bottom:9px}
+.h-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid #f0f2f5}
+.h-day{font-size:13px;font-weight:800;color:#1a1a2e}
+.h-date{font-size:10px;color:#999;margin-top:2px;font-weight:600}
+.h-del{background:none;border:none;color:#c0390f;font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0;margin-left:8px}
+.h-ex{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:4px 0}
+.h-ex-name{font-size:12px;font-weight:600;color:#1a1a2e;flex:1}
+.h-ex-sets{font-size:12px;font-weight:700;color:#1a5c3a;font-variant-numeric:tabular-nums;white-space:nowrap}
+.h-unit{font-size:9px;color:#bbb;font-weight:700}
+
+/* BACKUP & RESTORE */
+.backup{background:#fff;border:1.5px solid #e0e3e8;border-radius:11px;padding:13px;margin-top:12px}
+.backup-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#1a1a2e;margin-bottom:6px}
+.backup-desc{font-size:11px;color:#777;line-height:1.55;margin-bottom:11px}
+.backup-btns{display:flex;gap:8px}
+.bk-btn{flex:1;border:none;border-radius:9px;padding:12px;font-size:12px;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.bk-export{background:#1a3a5c;color:#fff}
+.bk-import{background:#eef0f5;color:#1a1a2e}
+.bk-btn:active{opacity:.9}
+.bk-msg{font-size:11px;margin-top:10px;font-weight:600;line-height:1.45}
+.er.complete .et{background:#f3faf6}
+.er.complete .ename{color:#1a5c3a}
+
+/* REST TIMER */
+.rest-btn{width:100%;padding:9px;background:#1a1a2e;color:#fff;border:none;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;margin-top:9px;display:flex;align-items:center;justify-content:center;gap:7px}
+.rest-btn:active{opacity:.85}
+.timer-bar{position:fixed;left:0;right:0;bottom:0;background:#1a1a2e;color:#fff;padding:14px 18px;padding-bottom:max(14px,env(safe-area-inset-bottom));display:none;align-items:center;justify-content:space-between;z-index:50;box-shadow:0 -4px 20px rgba(0,0,0,.25)}
+.timer-bar.show{display:flex}
+.timer-info{display:flex;flex-direction:column}
+.timer-name{font-size:10px;color:#8899bb;text-transform:uppercase;letter-spacing:.06em}
+.timer-time{font-size:30px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.timer-actions{display:flex;gap:8px}
+.timer-act{background:rgba(255,255,255,.14);color:#fff;border:none;border-radius:9px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer}
+.timer-act.stop{background:#c0390f}
+
+/* INSTALL HINT */
+.install-hint{background:#fff;border:1.5px solid #e0e3e8;border-radius:11px;padding:11px 13px;margin-bottom:10px;font-size:11px;color:#555;line-height:1.5;display:flex;gap:9px;align-items:flex-start}
+.install-hint .ico{font-size:16px;flex-shrink:0}
+.install-hint b{color:#1a1a2e}
+.install-hint .x{background:none;border:none;color:#bbb;font-size:16px;cursor:pointer;margin-left:auto;flex-shrink:0;line-height:1}
+.app-title{font-size:19px;font-weight:800;color:#1a1a2e;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.app-title .dot{width:9px;height:9px;border-radius:3px;background:#1a5c3a}
+</style>
+</head>
+<body>
+
+<div class="app-title"><span class="dot"></span>5-Day Split</div>
+
+<div class="view-toggle">
+  <button id="vw-workout" class="on" onclick="showView('workout')">Today's workout</button>
+  <button id="vw-history" onclick="showView('history')">History</button>
+</div>
+
+<div class="install-hint" id="installHint">
+  <span class="ico">📲</span>
+  <div><b>Add to your home screen.</b> On iPhone: tap the Share button in Safari, then <b>Add to Home Screen</b>. On Android: tap the <b>⋮</b> menu in Chrome, then <b>Add to Home screen / Install app</b>. It'll open fullscreen like a real app and your checked sets are saved.</div>
+  <button class="x" onclick="dismissHint()" aria-label="Dismiss">×</button>
+</div>
+
+<div class="legend" id="legend">
+  <div class="li"><div class="ld" style="background:#1a3a5c"></div>Primary muscle</div>
+  <div class="li"><div class="ld" style="background:#1a5c3a"></div>Secondary muscle</div>
+  <div class="li"><div class="ld" style="background:#c0390f"></div>Core</div>
+  <div class="li"><div class="ld" style="background:#888"></div>Tap exercise → form cues + live video links</div>
+</div>
+
+<div class="days-grid" id="nav"></div>
+<div id="progWrap"></div>
+<div id="plan"></div>
+
+<input type="file" id="importFile" accept="application/json,.json" style="display:none" onchange="handleImport(event)">
+
+<div class="timer-bar" id="timerBar">
+  <div class="timer-info">
+    <span class="timer-name" id="timerName">Rest</span>
+    <span class="timer-time" id="timerTime">0:00</span>
+  </div>
+  <div class="timer-actions">
+    <button class="timer-act" id="timerAdd" onclick="addRest(15)">+15s</button>
+    <button class="timer-act stop" onclick="stopRest()">Stop</button>
+  </div>
+</div>
+
+<script>
+const days=[
+  {day:"Monday",abbr:"MON",focus:"Chest + Triceps",short:"Chest\nTriceps",
+   tip:"Compound pressing first while fresh. Triceps pre-exhausted by chest so isolation at end is efficient. Core last — it stabilizes all pressing so don't fatigue it early.",
+   muscles:[
+    {name:"Chest",cls:"m1",nc:"nc1",tc:"tc1",sc:"sc1",
+     ex:[
+      {n:1,name:"Incline Barbell / Dumbbell Press",alts:"Alternate barbell and DB weekly",tgt:"Upper chest — clavicular head",sets:"3",reps:"6–10",rest:"90s",tempo:"3-1-1",
+       searches:["incline barbell press proper form tutorial","incline dumbbell press chest form guide"],
+       steps:["Set bench 30–45°. Grip slightly wider than shoulders.","Lower bar to upper chest — 3 sec controlled.","Press up explosively, don't fully lock elbows.","Keep shoulder blades pinched back throughout."]},
+      {n:2,name:"Flat Bench Dumbbell Press",alts:"Barbell flat bench as alternative",tgt:"Mid chest — sternal head (largest portion)",sets:"3",reps:"8–12",rest:"90s",tempo:"3-0-1",
+       searches:["flat dumbbell bench press form tutorial","bench press proper form guide"],
+       steps:["Lie flat, feet planted, natural arch.","Lower DBs — elbows at 45–75° (not flared).","Press up and slightly inward — squeeze chest at top.","Full range — don't bounce off chest."]},
+      {n:3,name:"Decline Barbell / Dumbbell Press",alts:"High to low cable fly as alternative",tgt:"Lower chest — costal head",sets:"3",reps:"10–12",rest:"75s",tempo:"3-0-1",
+       searches:["decline barbell press form tutorial","lower chest cable fly form guide"],
+       steps:["Feet secured on decline pads.","Lower bar to lower chest, elbows at 45–75°.","Press upward and slightly forward.","Focus on squeezing lower chest only."]},
+      {n:4,name:"Pec Deck / Cable Chest Fly",alts:"Incline cable for upper, flat for mid chest",tgt:"Inner chest — peak contraction + full stretch",sets:"3",reps:"12–15",rest:"60s",tempo:"2-1-2",
+       searches:["pec deck machine proper form tutorial","cable chest fly inner chest form"],
+       steps:["Handles at chest height. Arms open wide.","Bring together — feel deep inner chest squeeze.","Hold peak contraction 1 sec.","Return slowly — don't let weight snap back."]},
+     ]},
+    {name:"Triceps",cls:"m2",nc:"nc2",tc:"tc2",sc:"sc2",
+     ex:[
+      {n:1,name:"Close Grip Bench / Weighted Dips",alts:"Best compound for all 3 tricep heads",tgt:"All 3 heads — long, lateral, medial",sets:"3",reps:"8–10",rest:"90s",tempo:"3-0-1",
+       searches:["close grip bench press triceps form guide","weighted dips triceps proper form tutorial"],
+       steps:["Grip bar shoulder-width or slightly inside.","Lower bar to lower chest — elbows close to body.","Press to full extension — squeeze triceps.","Dips: lean slight forward, lower until arms parallel."]},
+      {n:2,name:"Overhead EZ Bar / Rope Extension",alts:"Overhead fully stretches the long head",tgt:"Long head — largest, runs along back of arm",sets:"3",reps:"10–12",rest:"75s",tempo:"3-1-1",
+       searches:["overhead tricep extension EZ bar form tutorial","rope overhead tricep extension form guide"],
+       steps:["Hold EZ bar overhead, elbows pointing forward.","Lower behind head — feel deep long head stretch.","Extend elbows only — upper arms stay still.","Full lockout at top for max contraction."]},
+      {n:3,name:"Rope Push Down / V-Bar Push Down",alts:"Alternate grips weekly",tgt:"Lateral head — outer horseshoe shape",sets:"3",reps:"12–15",rest:"60s",tempo:"2-1-1",
+       searches:["rope tricep pushdown proper form tutorial","cable tricep pushdown form guide"],
+       steps:["Stand close to cable — slight forward lean.","Pin elbows at sides — they must not move.","Push down and slightly outward — full extension.","Squeeze hard at bottom, slow return."]},
+      {n:4,name:"Single Arm Overhead DB Extension",alts:"Cable single arm overhead",tgt:"Medial head + long head isolation",sets:"3",reps:"12 each",rest:"60s",tempo:"3-0-1",
+       searches:["single arm overhead dumbbell tricep extension form","cable single arm tricep extension tutorial"],
+       steps:["Hold DB one hand, raise overhead.","Lower behind head — elbow points up.","Extend arm fully squeezing tricep at top.","Support working arm with free hand if needed."]},
+     ]},
+    {name:"Core",cls:"mc",nc:"ncc",tc:"tcc",sc:"scc",
+     ex:[
+      {n:"★",name:"Cable Crunch (Kneeling)",alts:"Rope attachment — crunch elbows to knees",tgt:"Rectus abdominis — weighted flexion",sets:"3",reps:"15",rest:"60s",tempo:"2-1-2",core:true,
+       searches:["kneeling cable crunch proper form tutorial","cable ab crunch form guide"],
+       steps:["Kneel facing cable. Hold rope at forehead.","Crunch elbows toward knees — spine rounds.","Squeeze abs hard at bottom for 1 sec.","Return slowly — don't let weight pull you up."]},
+      {n:"★",name:"Plank with Shoulder Tap",alts:"Feet wider for more stability",tgt:"Anti-rotation — transverse abdominis + obliques",sets:"3",reps:"20 taps",rest:"60s",tempo:"controlled",core:true,
+       searches:["plank shoulder tap exercise proper form","anti rotation plank core exercise tutorial"],
+       steps:["High plank — wrists under shoulders.","Feet wider than hips for stability.","Tap shoulder with opposite hand — no hip rotation.","Keep core braced, breathe steady."]},
+     ]}
+  ]},
+  {day:"Tuesday",abbr:"TUE",focus:"Back + Biceps",short:"Back\nBiceps",
+   tip:"Pull movements first while back is fresh. Biceps get secondary stimulus during rows. Full stretch at bottom of every lat movement — that's where growth happens.",
+   muscles:[
+    {name:"Back",cls:"m1",nc:"nc1",tc:"tc1",sc:"sc1",
+     ex:[
+      {n:1,name:"Wide Grip Pull-Up / Lat Pull Down",alts:"Weighted pull-up when bodyweight is easy",tgt:"Upper lats + teres major — width",sets:"3",reps:"8–12",rest:"90s",tempo:"3-1-1",
+       searches:["wide grip pull up proper form tutorial","lat pulldown form guide back width"],
+       steps:["Wide overhand grip — arms fully extended at start.","Pull elbows down and back — lead with elbows.","Get chin over bar — squeeze lats hard at top.","Lower fully — don't cheat the range of motion."]},
+      {n:2,name:"Seated Cable Row / Bent Over Row",alts:"Underhand grip = more bicep + lower lat",tgt:"Mid back thickness — rhomboids + mid traps",sets:"3",reps:"8–12",rest:"90s",tempo:"3-1-1",
+       searches:["seated cable row proper form tutorial","barbell bent over row form guide"],
+       steps:["Sit tall — don't round lower back.","Pull to lower chest/upper abs — elbows close.","Squeeze shoulder blades at full contraction.","Slow return — feel stretch in mid back."]},
+      {n:3,name:"Single Arm Dumbbell Row",alts:"Tripod row — go heavy with full range",tgt:"Lower lats + rear delt",sets:"3",reps:"10–12 each",rest:"75s",tempo:"3-0-1",
+       searches:["single arm dumbbell row proper form tutorial","tripod row lat exercise form guide"],
+       steps:["Brace hand/knee on bench — neutral spine.","Let dumbbell hang — full stretch at bottom.","Row to hip — not shoulder — elbow drives back.","Pause 1 sec at top — squeeze the lat hard."]},
+      {n:4,name:"Cable Rope Pull Over",alts:"Straight bar cable pull over",tgt:"Lower lats + serratus anterior",sets:"3",reps:"12–15",rest:"60s",tempo:"2-0-2",
+       searches:["cable rope pullover lat exercise form tutorial","straight bar cable pullover form guide"],
+       steps:["Face cable, arms extended overhead at start.","Keep slight elbow bend throughout.","Pull down and back — lats do the work.","Return slowly — full lat stretch overhead."]},
+     ]},
+    {name:"Biceps",cls:"m2",nc:"nc2",tc:"tc2",sc:"sc2",
+     ex:[
+      {n:1,name:"Incline Dumbbell Curl",alts:"45–60° bench — maximises long head stretch",tgt:"Long head — outer peak of bicep",sets:"3",reps:"10–12",rest:"75s",tempo:"3-0-1",
+       searches:["incline dumbbell curl long head bicep form tutorial","seated incline curl proper form guide"],
+       steps:["Sit back fully — arms hang straight (pre-stretches long head).","Curl up with supination — palms up at top.","Lower fully — don't let elbows drift forward.","Full range every rep — no half reps."]},
+      {n:2,name:"Preacher Curl / Spider Curl",alts:"EZ bar preacher or single arm machine",tgt:"Short head — inner thickness and fullness",sets:"3",reps:"10–12",rest:"75s",tempo:"3-1-1",
+       searches:["preacher curl short head bicep proper form tutorial","spider curl bicep form guide"],
+       steps:["Upper arm fully on preacher pad.","Start from full extension at bottom.","Curl up — squeeze hard at top, hold 1 sec.","Lower slowly — don't let weight drop."]},
+      {n:3,name:"Hammer Curl / Cross Body Curl",alts:"DB or cable rope hammer curls",tgt:"Brachialis + brachioradialis — pushes bicep up",sets:"3",reps:"10–12",rest:"60s",tempo:"2-0-2",
+       searches:["hammer curl proper form tutorial brachialis","cross body hammer curl form guide"],
+       steps:["Stand — neutral grip (palms face each other).","Curl straight up — don't rotate wrist.","Squeeze at top, hold 1 sec.","Lower slowly — full extension at bottom."]},
+      {n:4,name:"Concentration Curl / Drag Curl",alts:"Elbow braced on inner thigh",tgt:"Peak contraction — short head + overall shape",sets:"3",reps:"12 each",rest:"60s",tempo:"2-1-2",
+       searches:["concentration curl bicep peak proper form tutorial","cable drag curl bicep form guide"],
+       steps:["Sit — brace working elbow on inner thigh.","Curl up — focus entirely on the squeeze at top.","Hold peak contraction 1–2 sec.","Lower all the way — full range always."]},
+     ]},
+    {name:"Core",cls:"mc",nc:"ncc",tc:"tcc",sc:"scc",
+     ex:[
+      {n:"★",name:"Hanging Knee / Leg Raises",alts:"Straight legs for harder version",tgt:"Lower abs + hip flexors",sets:"3",reps:"15",rest:"60s",tempo:"controlled",core:true,
+       searches:["hanging knee raise lower abs proper form tutorial","hanging leg raise form guide"],
+       steps:["Hang from bar — full dead hang start.","Bring knees to chest using abs — no momentum.","Hold 1 sec at top — abs contracted hard.","Lower slowly — don't swing."]},
+      {n:"★",name:"Ab Wheel Rollout",alts:"From knees — stop when lower back lifts",tgt:"Anti-extension — deep core + rectus abdominis",sets:"3",reps:"10–12",rest:"60s",tempo:"3-0-2",core:true,
+       searches:["ab wheel rollout proper form tutorial for beginners","ab wheel core exercise form guide"],
+       steps:["Start kneeling — wheel under shoulders.","Roll out slowly — hips must not drop.","Stop when you feel lower back tension.","Pull back using core — not momentum."]},
+     ]}
+  ]},
+  {day:"Wednesday",abbr:"WED",focus:"Shoulders + Traps",short:"Shoulders\nTraps",
+   tip:"Press first, then laterals, then rear delts, then traps. All 3 delt heads covered plus rotator cuff stability work.",
+   muscles:[
+    {name:"Shoulders",cls:"m1",nc:"nc1",tc:"tc1",sc:"sc1",
+     ex:[
+      {n:1,name:"Seated DB / Barbell Overhead Press",alts:"Smith machine OHP for stability focus",tgt:"All delt heads — anterior dominant compound",sets:"3",reps:"8–10",rest:"90s",tempo:"3-0-1",
+       searches:["seated dumbbell overhead press proper form tutorial","barbell overhead press OHP form guide"],
+       steps:["Sit upright — back supported. DBs at shoulder height.","Press straight up — slight arc inward at top.","Don't lock elbows — keep constant tension.","Lower to just below ear level — full range."]},
+      {n:2,name:"Dumbbell / Cable Lateral Raise",alts:"Lean slightly forward for better medial hit",tgt:"Medial delt — side width and boulder look",sets:"3",reps:"12–15",rest:"60s",tempo:"2-1-2",
+       searches:["lateral raise proper form medial delt tutorial","cable lateral raise shoulder form guide"],
+       steps:["Slight forward lean at hips.","Raise arms to shoulder height — lead with elbows.","Pinky slightly higher than thumb at top.","Lower slowly — 2 sec down — don't drop."]},
+      {n:3,name:"Rear Delt Fly / Reverse Pec Deck",alts:"Chest supported DB reverse fly",tgt:"Posterior delt — most underdeveloped head",sets:"3",reps:"12–15",rest:"60s",tempo:"2-1-2",
+       searches:["rear delt fly proper form tutorial posterior deltoid","reverse pec deck rear delt form guide"],
+       steps:["Hinge forward 45°. Arms hang with slight bend.","Raise arms out to side — lead with elbows.","Squeeze rear delts at top — hold 1 sec.","Lower slowly — feel stretch at bottom."]},
+      {n:4,name:"DB Front Raise / Cable Front Raise",alts:"Plate front raise as variation",tgt:"Anterior delt isolation + upper chest tie-in",sets:"3",reps:"12",rest:"60s",tempo:"2-0-2",
+       searches:["dumbbell front raise anterior delt form tutorial","cable front raise shoulder form guide"],
+       steps:["Hold DBs in front of thighs — slight elbow bend.","Raise to shoulder height — pause briefly.","Don't swing body — strict form only.","Lower slowly — full control."]},
+     ]},
+    {name:"Traps",cls:"m2",nc:"nc2",tc:"tc2",sc:"sc2",
+     ex:[
+      {n:1,name:"Barbell Shrug",alts:"Pause 1 sec at top every rep",tgt:"Upper traps — visible neck-to-shoulder muscle",sets:"3",reps:"12–15",rest:"75s",tempo:"1-1-1",
+       searches:["barbell shrug proper form tutorial upper traps","shrug exercise form guide"],
+       steps:["Hold bar — shoulder width grip.","Shrug straight up — don't roll shoulders.","Hold at top 1–2 sec — full contraction.","Lower fully — full range always."]},
+      {n:2,name:"Incline DB Shrug",alts:"Face down on incline — eliminates leg drive",tgt:"Mid traps + upper trap isolation",sets:"3",reps:"12–15",rest:"60s",tempo:"2-1-2",
+       searches:["incline dumbbell shrug face down form tutorial","cable shrug trap exercise form guide"],
+       steps:["Lie face down on incline bench — DBs hanging.","Shrug shoulders upward toward ears.","Hold peak contraction 1 sec.","Lower slowly — feel mid trap stretch."]},
+      {n:3,name:"Face Pull (Cable Rope)",alts:"Pull to forehead — elbows must stay high",tgt:"Mid + lower traps + rear delt + rotator cuff",sets:"3",reps:"15",rest:"60s",tempo:"2-1-2",
+       searches:["cable face pull proper form tutorial shoulder health","face pull rear delt form guide"],
+       steps:["Cable at eye level. Rope attachment.","Pull rope to forehead — elbows high and wide.","Externally rotate — thumbs point back.","Hold 1 sec — squeeze rear delts and mid traps."]},
+      {n:4,name:"Rack Pull / Partial Deadlift",alts:"Pull from just below knee — trap dominant",tgt:"Lower traps + upper back thickness",sets:"3",reps:"6–8",rest:"120s",tempo:"1-0-1",
+       searches:["rack pull proper form tutorial trap exercise","partial deadlift form guide upper back"],
+       steps:["Bar set just below knee in rack.","Double overhand or mixed grip.","Drive hips forward — stand fully upright.","Lower bar back to pins with control."]},
+     ]},
+    {name:"Core",cls:"mc",nc:"ncc",tc:"tcc",sc:"scc",
+     ex:[
+      {n:"★",name:"Cable Woodchop (High to Low)",alts:"Stand sideways — rotate through core",tgt:"Obliques + rotational power",sets:"3",reps:"12 each",rest:"60s",tempo:"controlled",core:true,
+       searches:["cable woodchop oblique exercise proper form tutorial","rotational cable chop core form guide"],
+       steps:["Cable set high. Stand sideways, feet wide.","Pull diagonally down and across body.","Rotate through core — hips follow.","Return slowly — resist the rotation."]},
+      {n:"★",name:"Dead Bug",alts:"Lower back stays flat on floor throughout",tgt:"Deep core — transverse abdominis stability",sets:"3",reps:"10 each",rest:"60s",tempo:"slow",core:true,
+       searches:["dead bug exercise proper form tutorial core stability","dead bug core exercise progressions"],
+       steps:["Lie on back — arms up, knees 90°.","Press lower back into floor — must stay flat.","Extend opposite arm and leg slowly.","Return and switch — back never lifts."]},
+     ]}
+  ]},
+  {day:"Thursday",abbr:"THU",focus:"Quads + Hamstrings",short:"Quads\nHamstrings",
+   tip:"Core FIRST today — hollow body hold before squats activates deep core and improves your brace under load. Quads first, then posterior chain, calves last.",
+   muscles:[
+    {name:"Core — Do BEFORE Squats",cls:"mc",nc:"ncc",tc:"tcc",sc:"scc",
+     ex:[
+      {n:"★",name:"Hollow Body Hold",alts:"Arms overhead, legs low, lower back flat",tgt:"Deep core — prepares spine for squat load",sets:"3",reps:"25–30 sec",rest:"45s",tempo:"hold",core:true,
+       searches:["hollow body hold proper form tutorial core activation","hollow body exercise progressions"],
+       steps:["Lie on back — press lower back into floor hard.","Extend arms overhead and legs low (~15°).","Body forms banana curve — hold position.","Breathe shallow — maintain tension throughout."]},
+      {n:"★",name:"Pallof Press (Cable)",alts:"Side-on to cable — press out, hold 2 sec",tgt:"Anti-rotation — improves squat stability",sets:"3",reps:"10 each",rest:"45s",tempo:"2-2-2",core:true,
+       searches:["pallof press proper form tutorial anti rotation core","pallof press cable exercise form guide"],
+       steps:["Stand sideways to cable. Handle at chest.","Press straight out — resist the rotation.","Hold 2 sec — core fights the cable pull.","Return to chest. Don't let cable rotate you."]},
+     ]},
+    {name:"Quads + Glutes",cls:"m1",nc:"nc1",tc:"tc1",sc:"sc1",
+     ex:[
+      {n:1,name:"Barbell Back Squat",alts:"Front squat for more quad emphasis",tgt:"All 4 quad heads + glutes — king of all exercises",sets:"3",reps:"6–10",rest:"120s",tempo:"3-1-1",
+       searches:["barbell back squat perfect form tutorial depth","squat proper form bracing guide"],
+       steps:["Bar on upper traps — brace core hard before unracking.","Feet shoulder-width, toes 15–30° out.","Sit back and down — knees track over toes.","Drive through whole foot — hips and chest rise together."]},
+      {n:2,name:"Bulgarian Split Squat",alts:"Hold DBs or barbell — rear foot elevated",tgt:"Rectus femoris + VMO + glute max — unilateral",sets:"3",reps:"10 each",rest:"90s",tempo:"3-0-1",
+       searches:["bulgarian split squat proper form tutorial","BSS rear foot elevated form guide"],
+       steps:["Rear foot on bench — front foot far forward enough.","Lower back knee toward floor — upright torso.","Front knee stays over toes — don't cave in.","Drive through front heel to stand."]},
+      {n:3,name:"Leg Press",alts:"Feet high/wide = glutes, low/narrow = quads",tgt:"Vastus lateralis + vastus medialis + glutes",sets:"3",reps:"12–15",rest:"75s",tempo:"3-0-1",
+       searches:["leg press proper form tutorial foot position guide","leg press machine form for quads and glutes"],
+       steps:["Back flat against pad — no lower back rounding.","Lower platform until knees at 90°.","Don't lock knees at top — keep tension.","Control the descent — don't let it drop fast."]},
+      {n:4,name:"Leg Extension",alts:"Single leg to fix strength imbalances",tgt:"Rectus femoris + VMO — terminal quad isolation",sets:"3",reps:"12–15",rest:"60s",tempo:"2-1-2",
+       searches:["leg extension machine proper form tutorial quad isolation","leg extension exercise form guide"],
+       steps:["Seat adjusted so knees align with machine pivot.","Extend fully — squeeze quads hard at top.","Hold peak contraction 1 sec.","Lower slowly — don't let weight bang down."]},
+     ]},
+    {name:"Hamstrings + Calves",cls:"m2",nc:"nc2",tc:"tc2",sc:"sc2",
+     ex:[
+      {n:1,name:"Romanian Deadlift (RDL)",alts:"DB or barbell — hinge at hips, soft knees",tgt:"Biceps femoris long head + semitendinosus",sets:"3",reps:"10–12",rest:"90s",tempo:"3-0-1",
+       searches:["romanian deadlift RDL proper form tutorial hamstring","RDL hip hinge form guide"],
+       steps:["Hold bar at hips — soft knee bend throughout.","Hinge at hips — push hips back, not down.","Lower until hamstrings fully stretched.","Drive hips forward to stand — squeeze glutes at top."]},
+      {n:2,name:"Seated Leg Curl",alts:"Lying leg curl as alternative",tgt:"Biceps femoris short head + semimembranosus",sets:"3",reps:"12–15",rest:"60s",tempo:"2-1-2",
+       searches:["seated leg curl proper form tutorial hamstring","lying leg curl machine form guide"],
+       steps:["Adjust so knees align with machine pivot.","Curl heels toward glutes — full range.","Squeeze hamstrings hard at peak — hold 1 sec.","Return slowly — 2 full seconds."]},
+      {n:3,name:"Nordic Curl / Lying Leg Curl",alts:"Nordic curl — gold standard for hamstrings",tgt:"Full hamstring — eccentric long head emphasis",sets:"3",reps:"8–10",rest:"90s",tempo:"slow eccentric",
+       searches:["nordic hamstring curl proper form tutorial eccentric","nordic curl progression for beginners"],
+       steps:["Kneel — feet anchored under pad.","Lower body toward floor using hamstrings only.","Go as low as you can control.","Use hands to push up — pull back up with hamstrings."]},
+      {n:4,name:"Standing + Seated Calf Raises",alts:"Both for complete gastrocnemius + soleus",tgt:"Gastrocnemius (standing) + Soleus (seated)",sets:"3",reps:"15–20",rest:"60s",tempo:"2-1-2",
+       searches:["standing calf raise proper form tutorial gastrocnemius","seated calf raise soleus form guide"],
+       steps:["Stand on step edge — full heel drop at bottom.","Rise fully on toes — squeeze at top.","Hold 1 sec at peak — don't rush.","Lower slowly — full stretch every single rep."]},
+     ]},
+  ]},
+  {day:"Friday",abbr:"FRI",focus:"Rear Delts + Forearms",short:"Rear Delts\nForearms",
+   tip:"Weak point day. Rear delts improve posture and shoulder health. Forearm strength carries over to every pulling movement in your program.",
+   muscles:[
+    {name:"Rear Delts + Rotator Cuff",cls:"m1",nc:"nc1",tc:"tc1",sc:"sc1",
+     ex:[
+      {n:1,name:"Chest Supported DB Reverse Fly",alts:"Face down on incline — removes all momentum",tgt:"Posterior deltoid — primary mover",sets:"3",reps:"12–15",rest:"75s",tempo:"2-1-2",
+       searches:["chest supported dumbbell reverse fly form tutorial","incline reverse fly rear delt form guide"],
+       steps:["Lie face down on incline bench — chest supported.","Arms hang straight down with DBs.","Raise arms out to sides — lead with elbows.","Squeeze rear delts hard at top — hold 1 sec."]},
+      {n:2,name:"Cable Face Pull",alts:"Rope to forehead — elbows must stay high",tgt:"Rear delt + mid traps + external rotators",sets:"3",reps:"15",rest:"60s",tempo:"2-1-2",
+       searches:["cable face pull proper form tutorial rear delt","face pull exercise shoulder health form guide"],
+       steps:["Cable at eye level. Rope attachment.","Pull to forehead — elbows high and wide.","Externally rotate — thumbs point behind you.","Hold 1 sec — squeeze rear delt and traps."]},
+      {n:3,name:"Bent Over Cable Rear Delt Fly",alts:"Both arms simultaneously — cables crossed",tgt:"Rear delt + teres minor",sets:"3",reps:"12–15",rest:"60s",tempo:"2-1-2",
+       searches:["bent over cable rear delt fly form tutorial","cable rear delt exercise form guide"],
+       steps:["Hinge forward 45° — grab opposite cable handles.","Pull arms out to sides — slight elbow bend.","Rear delts do all the work — no swinging.","Slow return — resist the cables."]},
+      {n:4,name:"Cable / Band External Rotation",alts:"Elbow at 90° — only forearm rotates",tgt:"Rotator cuff — infraspinatus + teres minor",sets:"3",reps:"15 each",rest:"60s",tempo:"2-0-2",
+       searches:["cable external rotation rotator cuff exercise form tutorial","band external rotation shoulder injury prevention"],
+       steps:["Stand sideways to cable — elbow at 90°.","Elbow pinned at side — only forearm moves.","Rotate hand outward as far as comfortable.","Return slowly — go light, this is injury prevention."]},
+     ]},
+    {name:"Forearms",cls:"m2",nc:"nc2",tc:"tc2",sc:"sc2",
+     ex:[
+      {n:1,name:"Barbell / Cable Wrist Curl",alts:"Seated — forearms on bench, full range",tgt:"Wrist flexors — flexor digitorum + flexor carpi",sets:"3",reps:"15",rest:"45s",tempo:"2-1-2",
+       searches:["barbell wrist curl forearm flexor form tutorial","cable wrist curl exercise form guide"],
+       steps:["Sit — forearms resting on thighs or bench.","Hold bar palms up, wrists hanging off edge.","Curl wrists upward — full range.","Lower fully — stretch flexors at bottom."]},
+      {n:2,name:"Reverse Barbell / EZ Bar Curl",alts:"EZ bar easier on wrists",tgt:"Wrist extensors — brachioradialis + extensor carpi",sets:"3",reps:"12",rest:"60s",tempo:"3-0-1",
+       searches:["reverse barbell curl form tutorial wrist extensors","EZ bar reverse curl forearm form guide"],
+       steps:["Hold bar with palms facing down (pronated).","Curl up keeping elbows at sides.","Full contraction at top — squeeze.","Lower slowly — full extension."]},
+      {n:3,name:"Behind the Back Wrist Curl",alts:"Barbell behind back — full range",tgt:"Flexor carpi ulnaris + flexor carpi radialis",sets:"3",reps:"15",rest:"45s",tempo:"2-0-2",
+       searches:["behind the back wrist curl forearm exercise form tutorial","barbell behind back wrist curl guide"],
+       steps:["Hold barbell behind back — palms facing away.","Let bar roll to fingertips at bottom.","Curl wrists up — full contraction.","Lower slowly — feel the stretch."]},
+      {n:4,name:"Farmer's Walk / Plate Pinch",alts:"Walk 30m or pinch 2 plates for 30 sec",tgt:"Grip strength — all forearm muscles under load",sets:"3",reps:"30 sec",rest:"75s",tempo:"sustained",
+       searches:["farmers walk exercise proper form tutorial grip strength","plate pinch grip training exercise guide"],
+       steps:["Pick up heavy DBs — grip as tight as possible.","Walk with controlled steps — no swinging.","Shoulders back — don't hunch over.","Set down with control — don't drop weights."]},
+     ]},
+    {name:"Core",cls:"mc",nc:"ncc",tc:"tcc",sc:"scc",
+     ex:[
+      {n:"★",name:"Russian Twist (Weighted)",alts:"Hold plate — rotate with full control",tgt:"Obliques + rotational core strength",sets:"3",reps:"20 total",rest:"60s",tempo:"controlled",core:true,
+       searches:["russian twist weighted proper form tutorial obliques","russian twist core exercise form guide"],
+       steps:["Sit — lean back 45°. Feet elevated or on floor.","Hold plate at chest — rotate to one side.","Touch plate toward floor then rotate to other side.","Keep core braced — don't rush."]},
+      {n:"★",name:"Hanging Oblique Knee Raise",alts:"Hang from bar — knees up and to one side",tgt:"Obliques + lower abs",sets:"3",reps:"12 each",rest:"60s",tempo:"controlled",core:true,
+       searches:["hanging oblique knee raise proper form tutorial","hanging oblique raise core exercise guide"],
+       steps:["Hang from pull-up bar — dead hang.","Bring knees up and twist to one side.","Hold 1 sec at top — oblique contracted.","Lower slowly — repeat other side."]},
+     ]}
+  ]}
+];
+
+function makeYTSearchURL(q){
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
+}
+
+function buildPanel(ex, rowId){
+  const restSecs=parseInt(ex.rest)||60;
+  const stepsHtml=ex.steps.map((s,i)=>`<div class="step"><div class="snum">${i+1}</div><div>${s}</div></div>`).join('');
+  const linksHtml=ex.searches.map((q,i)=>`
+    <a class="vlink" href="${makeYTSearchURL(q)}" target="_blank" rel="noopener">
+      <div class="vlink-icon">
+        <svg width="14" height="16" viewBox="0 0 14 16" fill="white"><polygon points="0,0 14,8 0,16"/></svg>
+      </div>
+      <div class="vlink-text">
+        <div class="vlink-title">Video ${i+1}: ${q.replace(' proper form tutorial','').replace(' form guide','').replace(' form tutorial','').replace(' exercise guide','')}</div>
+        <div class="vlink-sub">Tap to search on YouTube → pick any top result</div>
+      </div>
+      <div style="font-size:16px;color:#FF0000">→</div>
+    </a>`).join('');
+
+  return `<div class="ep" id="ep_${rowId}">
+    <div class="ep-inner">
+      <div class="stitle" style="margin-bottom:8px">📹 Form Videos — Tap to open YouTube search</div>
+      <div class="vlinks">${linksHtml}</div>
+      <div class="vdivider">— FORM CUES —</div>
+      <div class="sbox">
+        <div class="stitle">Step by step</div>${stepsHtml}
+      </div>
+      <div class="schbox">
+        <div class="stitle">Schedule</div>
+        <div class="schgrid">
+          <div class="schcard"><div class="schl">Sets</div><div class="schv">${ex.sets}</div></div>
+          <div class="schcard"><div class="schl">Reps</div><div class="schv">${ex.reps}</div></div>
+          <div class="schcard"><div class="schl">Rest</div><div class="schv">${ex.rest}</div></div>
+          <div class="schcard schfull"><div class="schl">Tempo (down–pause–up)</div><div class="schv">${ex.tempo}</div><div class="schsub">e.g. 3-1-1 = 3s lower, 1s pause, 1s press</div></div>
+        </div>
+      </div>
+      <button class="rest-btn" data-rest="${restSecs}" data-name="${ex.name}" onclick="event.stopPropagation();startRest(+this.dataset.rest,this.dataset.name)">⏱ Start ${ex.rest} rest timer</button>
+    </div>
+  </div>`;
+}
+
+let current=0;
+const nav=document.getElementById("nav");
+const plan=document.getElementById("plan");
+
+function render(idx){
+  current=idx;
+  nav.querySelectorAll(".day-btn").forEach((b,i)=>{b.className="day-btn"+(i===idx?" active":"");});
+  const d=days[idx];
+  document.getElementById('progWrap').innerHTML=
+    `<div class="prog">
+      <div class="prog-top">
+        <span class="prog-label">${d.day} · ${d.focus}</span>
+        <span class="prog-count" id="progCount">0 / 0 sets</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+        <span class="unit-toggle">
+          <button class="${getUnit()==='lb'?'on':''}" onclick="setUnit('lb')">LB</button>
+          <button class="${getUnit()==='kg'?'on':''}" onclick="setUnit('kg')">KG</button>
+        </span>
+        <button class="prog-reset" onclick="resetDay()">Reset day</button>
+      </div>
+    </div>`;
+  let html=`<div class="dhb"><div><div class="dd">${d.day}</div><div class="df2">${d.focus}</div></div><div class="db">Tap exercise → form + videos</div></div>`;
+  d.muscles.forEach((m,mi)=>{
+    html+=`<div class="mb"><div class="mh ${m.cls}">${m.name}<span class="mhc">${m.ex.length} exercises</span></div>`;
+    m.ex.forEach((e,ei)=>{
+      const rowId=`${idx}_${mi}_${ei}`;
+      const nSets=parseInt(e.sets)||0;
+      html+=`<div class="er" id="row_${rowId}" onclick="toggleRow('${rowId}')">
+        <div class="et">
+          <div class="en ${m.nc}">${e.n}</div>
+          <div class="ec">
+            <div class="ename">${e.name}<span class="sc ${m.sc}">${e.sets}×${e.reps}</span></div>
+            ${e.alts?`<div class="ealts">${e.alts}</div>`:''}
+            <div class="etgt ${m.tc}">▸ ${e.tgt}</div>
+          </div>
+          <div class="chev">▼</div>
+        </div>
+        <div class="sets-row" onclick="event.stopPropagation()">
+          <span class="sets-lbl">Log sets — weight per set (${getUnit()})</span>
+          ${setDotsHtml(rowId, nSets)}
+          <span class="done-badge" id="badge_${rowId}"></span>
+        </div>
+        ${buildPanel(e, rowId)}
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  html+=`<div class="tipbox"><strong>💡 Coach tip:</strong> ${d.tip}</div>`;
+  html+=`<button class="finish-btn" onclick="finishWorkout()">✓ Finish &amp; save ${d.day}'s workout</button>`;
+  plan.innerHTML=html;
+  d.muscles.forEach((m,mi)=>m.ex.forEach((e,ei)=>updateRowState(`${idx}_${mi}_${ei}`)));
+  updateProgress();
+}
+
+function toggleRow(rowId){
+  const row=document.getElementById('row_'+rowId);
+  if(!row) return;
+  const isOpen=row.classList.contains('open');
+  document.querySelectorAll('.er.open').forEach(r=>r.classList.remove('open'));
+  if(!isOpen) row.classList.add('open');
+}
+
+/* ---------- Progress tracking (saved on this device) ---------- */
+const STORE_KEY='split5_progress_v1';
+let state={};
+try{ state=JSON.parse(localStorage.getItem(STORE_KEY))||{}; }catch(e){ state={}; }
+function save(){ try{ localStorage.setItem(STORE_KEY,JSON.stringify(state)); }catch(e){} }
+function setKey(rowId,i){ return rowId+'_s'+i; }
+function isSetDone(rowId,i){ return !!state[setKey(rowId,i)]; }
+function exSetCount(rowId){ const p=rowId.split('_').map(Number); return parseInt(days[p[0]].muscles[p[1]].ex[p[2]].sets)||0; }
+
+function setDotsHtml(rowId,n){
+  let h='';
+  for(let i=0;i<n;i++){
+    const done=isSetDone(rowId,i);
+    const w=getWeight(rowId,i);
+    h+=`<div class="set-cell${done?' done':''}" id="cell_${rowId}_${i}">
+      <span class="set-cell-lbl">Set ${i+1}</span>
+      <input class="set-w" type="number" inputmode="decimal" step="any" placeholder="–" value="${w}" id="w_${rowId}_${i}"
+        onclick="event.stopPropagation()" oninput="setWeight('${rowId}',${i},this.value)">
+      <button class="set-check" id="dot_${rowId}_${i}" onclick="event.stopPropagation();toggleSet('${rowId}',${i})">${done?'✓':'Done'}</button>
+    </div>`;
+  }
+  return h;
+}
+function getUnit(){ return state['_unit']||'lb'; }
+function setUnit(u){ state['_unit']=u; save(); render(current); }
+function getWeight(rowId,i){ const v=state[rowId+'_w'+i]; return (v==null)?'':v; }
+function setWeight(rowId,i,val){ const k=rowId+'_w'+i; if(val===''||val==null){ delete state[k]; } else { state[k]=val; } save(); }
+function toggleSet(rowId,i){
+  const k=setKey(rowId,i);
+  if(state[k]) delete state[k]; else state[k]=1;
+  save();
+  const done=!!state[k];
+  const cell=document.getElementById('cell_'+rowId+'_'+i);
+  const btn=document.getElementById('dot_'+rowId+'_'+i);
+  if(cell) cell.classList.toggle('done',done);
+  if(btn) btn.textContent=done?'✓':'Done';
+  updateRowState(rowId);
+  updateProgress();
+}
+function rowDone(rowId,n){ let c=0; for(let i=0;i<n;i++) if(isSetDone(rowId,i)) c++; return c; }
+function updateRowState(rowId){
+  const n=exSetCount(rowId), done=rowDone(rowId,n);
+  const row=document.getElementById('row_'+rowId);
+  const badge=document.getElementById('badge_'+rowId);
+  if(row) row.classList.toggle('complete', n>0 && done===n);
+  if(badge) badge.textContent = (n>0 && done===n) ? '✓ done' : (done>0? done+'/'+n : '');
+}
+function updateProgress(){
+  let total=0,done=0;
+  days[current].muscles.forEach((m,mi)=>m.ex.forEach((e,ei)=>{
+    const rowId=current+'_'+mi+'_'+ei, n=parseInt(e.sets)||0;
+    total+=n; done+=rowDone(rowId,n);
+  }));
+  const pct=total?Math.round(done/total*100):0;
+  const fill=document.getElementById('progFill'), cnt=document.getElementById('progCount');
+  if(fill) fill.style.width=pct+'%';
+  if(cnt) cnt.textContent=done+' / '+total+' sets · '+pct+'%';
+}
+function resetDay(){
+  if(!confirm('Clear all logged sets for '+days[current].day+'?')) return;
+  days[current].muscles.forEach((m,mi)=>m.ex.forEach((e,ei)=>{
+    const rowId=current+'_'+mi+'_'+ei, n=parseInt(e.sets)||0;
+    for(let i=0;i<n;i++){ delete state[setKey(rowId,i)]; delete state[rowId+'_w'+i]; }
+  }));
+  save();
+  render(current);
+}
+
+/* ---------- Rest timer ---------- */
+let timerInt=null, timerLeft=0;
+function fmt(s){ s=Math.max(0,s); const m=Math.floor(s/60), ss=s%60; return m+':'+(ss<10?'0':'')+ss; }
+function tick(){
+  timerLeft--;
+  document.getElementById('timerTime').textContent=fmt(timerLeft);
+  if(timerLeft<=0){ clearInterval(timerInt); timerInt=null; beep(); document.getElementById('timerName').textContent='Rest complete — go!'; }
+}
+function startRest(secs,name){
+  stopRest();
+  timerLeft=secs;
+  document.getElementById('timerName').textContent='Rest · '+name;
+  document.getElementById('timerTime').textContent=fmt(timerLeft);
+  document.getElementById('timerBar').classList.add('show');
+  timerInt=setInterval(tick,1000);
+}
+function stopRest(){ if(timerInt){clearInterval(timerInt);timerInt=null;} document.getElementById('timerBar').classList.remove('show'); }
+function addRest(s){
+  timerLeft=Math.max(0,timerLeft)+s;
+  document.getElementById('timerTime').textContent=fmt(timerLeft);
+  document.getElementById('timerName').textContent='Rest';
+  if(!timerInt) timerInt=setInterval(tick,1000);
+}
+function beep(){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.connect(g); g.connect(ctx.destination); o.type='sine'; o.frequency.value=880;
+    g.gain.setValueAtTime(0.001,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.3,ctx.currentTime+0.02);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.5);
+    o.start(); o.stop(ctx.currentTime+0.55);
+  }catch(e){}
+  try{ if(navigator.vibrate) navigator.vibrate([200,80,200]); }catch(e){}
+}
+
+/* ---------- Install hint ---------- */
+function dismissHint(){ const h=document.getElementById('installHint'); if(h) h.style.display='none'; try{localStorage.setItem('split5_hint','1');}catch(e){} }
+(function(){
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  let dismissed=false; try{ dismissed=!!localStorage.getItem('split5_hint'); }catch(e){}
+  if(standalone||dismissed){ const h=document.getElementById('installHint'); if(h) h.style.display='none'; }
+})();
+
+/* ---------- Inline manifest (enables Android "Install app") ---------- */
+(function(){
+  const icon="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192'%3E%3Crect width='192' height='192' rx='42' fill='%231a1a2e'/%3E%3Cg fill='%23fff'%3E%3Crect x='40' y='86' width='15' height='20' rx='3'/%3E%3Crect x='55' y='75' width='15' height='42' rx='3'/%3E%3Crect x='70' y='92' width='52' height='8' rx='4'/%3E%3Crect x='122' y='75' width='15' height='42' rx='3'/%3E%3Crect x='137' y='86' width='15' height='20' rx='3'/%3E%3C/g%3E%3C/svg%3E";
+  const manifest={name:"5-Day Split",short_name:"5-Day Split",start_url:".",display:"standalone",orientation:"portrait",background_color:"#f0f2f5",theme_color:"#1a1a2e",icons:[{src:icon,sizes:"512x512",type:"image/svg+xml",purpose:"any"}]};
+  try{
+    const url=URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'}));
+    const l=document.createElement('link'); l.rel='manifest'; l.setAttribute('href',url); document.head.appendChild(l);
+  }catch(e){}
+})();
+
+/* ---------- Workout history (saved on this device) ---------- */
+const HIST_KEY='split5_history_v1';
+let history=[];
+try{ history=JSON.parse(localStorage.getItem(HIST_KEY))||[]; }catch(e){ history=[]; }
+function saveHistory(){ try{ localStorage.setItem(HIST_KEY,JSON.stringify(history)); }catch(e){} }
+
+function finishWorkout(){
+  const idx=current, d=days[idx], entries=[]; let any=false;
+  d.muscles.forEach((m,mi)=>m.ex.forEach((e,ei)=>{
+    const rowId=idx+'_'+mi+'_'+ei, n=parseInt(e.sets)||0, sets=[]; let used=false;
+    for(let i=0;i<n;i++){
+      const w=getWeight(rowId,i), done=isSetDone(rowId,i);
+      if(w!==''||done) used=true;
+      sets.push({w:w, done:done});
+    }
+    if(used){ any=true; entries.push({name:e.name, sets:sets}); }
+  }));
+  if(!any){ alert('Log at least one set — enter a weight or tap Done — before saving this workout.'); return; }
+  history.push({id:'s'+Date.now(), dateISO:new Date().toISOString(), dayName:d.day, focus:d.focus, unit:getUnit(), entries:entries});
+  saveHistory();
+  // Clear the Done checkmarks for next time; keep weights as a starting reference.
+  d.muscles.forEach((m,mi)=>m.ex.forEach((e,ei)=>{
+    const rowId=idx+'_'+mi+'_'+ei, n=parseInt(e.sets)||0;
+    for(let i=0;i<n;i++) delete state[setKey(rowId,i)];
+  }));
+  save();
+  alert('Saved! '+d.day+' is now in History. Your weights stay as a starting point for next time — check them off again on your next session.');
+  showView('history');
+}
+
+function renderHistory(){
+  const backup=`<div class="backup">
+    <div class="backup-title">Backup &amp; restore</div>
+    <div class="backup-desc">Your logs are saved in this app on this phone. Export a backup file to keep a permanent copy in Files, iCloud, or Google Drive — it survives reinstalls, updates, and clearing browser data, and you can restore it here or on a new phone.</div>
+    <div class="backup-btns">
+      <button class="bk-btn bk-export" onclick="exportData()">⬇ Export backup</button>
+      <button class="bk-btn bk-import" onclick="triggerImport()">⬆ Restore</button>
+    </div>
+    <div class="bk-msg" id="bkMsg"></div>
+  </div>`;
+  if(!history.length){
+    plan.innerHTML=`<div class="empty">No saved workouts yet.<br><br>Log your sets on any day, then tap <b>Finish &amp; save</b> at the bottom. Each saved session shows up here with its date and the weights you lifted.</div>`+backup;
+    return;
+  }
+  let h=`<div class="h-count">${history.length} saved workout${history.length>1?'s':''} · newest first</div>`;
+  history.slice().reverse().forEach(s=>{
+    const dt=new Date(s.dateISO);
+    const dateStr=dt.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+    const timeStr=dt.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+    let body='';
+    s.entries.forEach(e=>{
+      const sets=e.sets.map(x=>(x.w!==''&&x.w!=null?x.w:'–')+(x.done?'✓':'')).join('  ·  ');
+      body+=`<div class="h-ex"><div class="h-ex-name">${e.name}</div><div class="h-ex-sets">${sets} <span class="h-unit">${s.unit}</span></div></div>`;
+    });
+    h+=`<div class="h-card">
+      <div class="h-head">
+        <div><div class="h-day">${s.dayName} · ${s.focus}</div><div class="h-date">${dateStr} · ${timeStr}</div></div>
+        <button class="h-del" onclick="deleteSession('${s.id}')">Delete</button>
+      </div>${body}</div>`;
+  });
+  plan.innerHTML=h+backup;
+}
+function deleteSession(id){
+  if(!confirm('Delete this saved workout? This cannot be undone.')) return;
+  history=history.filter(s=>s.id!==id);
+  saveHistory();
+  renderHistory();
+}
+
+/* ---------- Backup & restore to a real file ---------- */
+function buildBackup(){
+  return JSON.stringify({app:'5-Day-Split', version:1, exportedAt:new Date().toISOString(), progress:state, history:history}, null, 2);
+}
+async function exportData(){
+  const fname='5-day-split-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  const blob=new Blob([buildBackup()],{type:'application/json'});
+  try{
+    const file=new File([blob],fname,{type:'application/json'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:'5-Day Split backup'});
+      bkMsg('Backup shared — save it to Files, iCloud, or Drive to keep it safe.', '#1a5c3a');
+      return;
+    }
+  }catch(e){ if(e && e.name==='AbortError'){ return; } }
+  try{
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download=fname;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+    bkMsg('Backup file created. Move it into Files or Drive so it stays safe.', '#1a5c3a');
+  }catch(e){ bkMsg('Export is not supported in this browser — try opening the app in Safari or Chrome.', '#c0390f'); }
+}
+function triggerImport(){ document.getElementById('importFile').click(); }
+function handleImport(ev){
+  const f=ev.target.files && ev.target.files[0];
+  if(!f){ return; }
+  const r=new FileReader();
+  r.onload=function(){
+    try{
+      const obj=JSON.parse(r.result);
+      if(!obj || (obj.history===undefined && obj.progress===undefined)) throw new Error('bad');
+      const n=Array.isArray(obj.history)?obj.history.length:0;
+      if(!confirm('Restore this backup? It replaces the data currently on this device with '+n+' saved workout(s).')){ ev.target.value=''; return; }
+      state=obj.progress||{};
+      history=Array.isArray(obj.history)?obj.history:[];
+      save(); saveHistory();
+      showView('history');
+      bkMsg('Restored '+history.length+' workout(s) from your backup.', '#1a5c3a');
+    }catch(e){ alert('That file is not a valid 5-Day Split backup.'); }
+    ev.target.value='';
+  };
+  r.onerror=function(){ alert('Could not read that file.'); ev.target.value=''; };
+  r.readAsText(f);
+}
+function bkMsg(t,c){ const el=document.getElementById('bkMsg'); if(el){ el.textContent=t; el.style.color=c||'#1a5c3a'; } }
+
+/* ---------- View switching ---------- */
+let view='workout';
+function showView(v){
+  view=v;
+  document.getElementById('vw-workout').classList.toggle('on',v==='workout');
+  document.getElementById('vw-history').classList.toggle('on',v==='history');
+  const workout=(v==='workout');
+  nav.style.display=workout?'':'none';
+  document.getElementById('progWrap').style.display=workout?'':'none';
+  const lg=document.getElementById('legend'); if(lg) lg.style.display=workout?'':'none';
+  if(workout){ render(current); } else { stopRest(); renderHistory(); }
+}
+
+days.forEach((d,i)=>{
+  const b=document.createElement("button");
+  b.className="day-btn";
+  b.innerHTML=`<span class="da">${d.abbr}</span><span class="df">${d.short}</span>`;
+  b.onclick=()=>render(i);
+  nav.appendChild(b);
+});
+render(0);
+</script>
+</body>
+</html>
