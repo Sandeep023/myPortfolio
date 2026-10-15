@@ -1,29 +1,33 @@
 import React, { useEffect } from "react";
 import { Helmet } from "react-helmet";
 
-import NavBar from "../components/common/navBar";
-import Footer from "../components/common/footer";
-import Logo from "../components/common/logo";
-import Socials from "../components/about/socials";
-
-import INFO from "../data/user";
-import SEO from "../data/seo";
-
-import "./styles/about.css";
-
+/*
+ * The workout tracker is a self-contained app in public/5-Day-Split-App.html
+ * (it can also be added to a phone's home screen on its own).
+ * This page shows it full-screen inside the site.
+ */
 const Workouts = () => {
 	useEffect(() => {
 		window.scrollTo(0, 0);
 	}, []);
 
 	return (
-        <iframe
-            src="./5-Day-Split-App.html"
-            title="External HTML Document"
-            width="100%" 
-            height="100%"
-            style={{ border: 'none', height: "1000px" }}
-        />
+		<React.Fragment>
+			<Helmet>
+				<title>Workouts | Sandeep Varma</title>
+			</Helmet>
+			<iframe
+				src="/5-Day-Split-App.html"
+				title="5-Day Split workout tracker"
+				style={{
+					display: "block",
+					border: "none",
+					width: "100%",
+					height: "100vh",
+					minHeight: "100dvh",
+				}}
+			/>
+		</React.Fragment>
 	);
 };
 
