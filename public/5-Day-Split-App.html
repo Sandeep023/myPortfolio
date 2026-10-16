@@ -73,6 +73,32 @@ dialog.sheet::backdrop{background:rgba(0,0,0,.4)}
 .migrate{margin-top:16px;background:var(--surface);border:1.5px solid var(--blue);border-radius:14px;padding:12px 14px;font-size:15px}
 .migrate .actions{margin-top:10px}
 
+/* exercise photos */
+.photo-sec{margin-top:14px}
+.photo-sec figure{margin:0}
+.photo-sec img{display:block;width:100%;max-height:340px;object-fit:cover;border-radius:12px;background:var(--soft);cursor:zoom-in}
+.photo-sec figcaption{font-size:12px;color:var(--muted);margin-top:4px}
+.photo-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.photo-tools .btn{padding:7px 12px;font-size:14px}
+.photo-pin{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.photo-pin[hidden]{display:none}
+.photo-pin input{flex:1;min-width:120px;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;background:var(--bg);color:var(--ink)}
+.photo-ind{display:inline-block;vertical-align:-2px;margin-left:6px;width:15px;height:15px;color:var(--muted)}
+.photo-ind[hidden]{display:none}
+dialog.lightbox{border:0;padding:0;background:transparent;max-width:96vw;max-height:92vh}
+dialog.lightbox::backdrop{background:rgba(0,0,0,.85)}
+dialog.lightbox img{display:block;max-width:96vw;max-height:88vh;border-radius:10px}
+dialog.lightbox .x{position:absolute;top:8px;right:8px}
+/* pull to refresh */
+html,body{overscroll-behavior-y:contain}
+.ptr{position:fixed;left:50%;top:-44px;z-index:40;display:flex;align-items:center;gap:8px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:transform .2s}
+.ptr.dragging{transition:none}
+.ptr svg{width:16px;height:16px;transition:transform .2s}
+.ptr.ready svg{transform:rotate(180deg)}
+.ptr.busy svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){ .ptr.busy svg{animation:none} }
+
 /* hero */
 .hero{padding:18px 0 8px}
 .date{font-weight:500;color:var(--muted);font-size:15px}
@@ -263,6 +289,9 @@ dialog.sheet::backdrop{background:rgba(0,0,0,.4)}
 </div>
 
 <input type="file" id="importFile" accept="application/json,.json" hidden>
+<input type="file" id="photoFile" accept="image/*" hidden>
+<div class="ptr" id="ptr" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 4a8 8 0 1 0 8 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Pull to refresh</span></div>
+<dialog class="lightbox" id="lightbox" aria-label="Exercise photo"><img id="lightImg" alt=""><button class="x" id="lightClose" aria-label="Close">×</button></dialog>
 <div class="timer" id="timer" role="timer" aria-live="off">
   <div class="timer-in">
     <div class="t-info"><span class="t-name" id="tName">Rest</span><span class="t-time" id="tTime">0:00</span></div>
@@ -1098,6 +1127,7 @@ async function pull() {
 }
 function pullQuietly() { if (document.hidden || navigator.onLine === false) return; pull().catch(e => setSync(e.status === 404 ? 'missing' : 'offline')); }
 setInterval(pullQuietly, 20000);
+setInterval(() => { if (!document.hidden) loadPhotos().catch(() => {}); }, 60000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) pullQuietly(); });
 
 /* update what's on screen without collapsing the open exercise or touching a field being typed in */
@@ -1319,7 +1349,7 @@ function cardHtml(m, e, row) {
     <button class="ex-head" aria-expanded="false" aria-controls="b_${row}">
       <div class="thumb" data-anim="${row}">${thumbVideo(e)}</div>
       <div class="ex-main">
-        <div class="ex-name">${esc(e.name)}</div>
+        <div class="ex-name">${esc(e.name)}<svg class="photo-ind" data-photo-ind="${row}" ${photos[e.id] ? '' : 'hidden'} viewBox="0 0 24 24" aria-label="Has a photo"><path d="M4 8h3l2-2h6l2 2h3v11H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
         <div class="ex-dose"><b>${esc(e.sets)} × ${esc(e.reps)}</b>rest ${esc(e.rest)}</div>
         <div class="ex-tgt">${esc(e.primary)}: ${esc(e.tgt)}</div>
         ${fitsMode(e) ? '' : `<div class="cat-tag" title="No ${esc(MODES[getMode()].toLowerCase())} version for this exercise">${esc(CAT_SHORT[e.cat])}, no ${esc(MODES[getMode()].toLowerCase())} option</div>`}
@@ -1355,6 +1385,7 @@ function bodyHtml(e, row) {
     <div class="stage-tabs" role="group" aria-label="Demonstration type"><button data-mode="video" aria-pressed="true">Video</button><button data-mode="guide" aria-pressed="false">Tempo guide</button></div>
     <div class="stage"><div class="big-anim" data-big="${row}"></div>
       <p class="tempo">${esc(tempoText(e.tempo))}${ANIM.reduce ? ' <button class="anim-toggle" data-play>Play animation</button>' : ''}</p></div>
+    <div class="photo-sec" data-photo-sec="${row}">${photoSecHtml(e)}</div>
     <p class="h4">How to do it</p>
     <ol class="cues">${e.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>
     <dl class="facts">
@@ -1368,6 +1399,131 @@ function bodyHtml(e, row) {
     <div class="actions"><button class="btn" data-rest="${restSecs(e)}">Start ${esc(e.rest)} rest</button></div>
     <p class="h4">More examples</p><div class="videos">${vids}</div>`;
 }
+/* ---------- exercise photos ----------
+   One photo per exercise, shown to every profile. Only Sandeep's profile shows the add/replace/remove
+   buttons, and the server also requires the admin PIN. The PIN is kept in memory for this visit only. */
+const PHOTOS_CACHE = 'split5_photos_v1';
+let photos = load(PHOTOS_CACHE, {});
+let adminPin = null, photoTarget = null, photoPending = null;
+const photoUrl = id => API + '/photo/' + encodeURIComponent(id) + '?v=' + photos[id];
+const canEditPhotos = () => pid === 'sandeep';
+function photoSecHtml(e) {
+  const has = !!photos[e.id];
+  let h = has ? `<p class="h4">Photo</p><figure><img src="${photoUrl(e.id)}" alt="Photo for ${esc(e.name)}" loading="lazy" data-zoom></figure>` : '';
+  if (canEditPhotos()) {
+    h += `<div class="photo-tools"><button class="btn ghost" data-photo="pick">${has ? 'Replace photo' : 'Add photo'}</button>${has ? '<button class="btn ghost" data-photo="remove">Remove</button>' : ''}<span class="form-msg" data-photo-msg role="status"></span></div>
+      <div class="photo-pin" data-photo-pin hidden><input type="password" inputmode="numeric" autocomplete="off" placeholder="Admin PIN" aria-label="Admin PIN"><button class="btn" data-photo="confirm">Upload</button></div>`;
+  }
+  return h;
+}
+function updatePhotoUI() {
+  document.querySelectorAll('[data-photo-ind]').forEach(el => { el.hidden = !photos[el.dataset.photoInd]; });
+  document.querySelectorAll('[data-photo-sec]').forEach(el => {
+    if (el.querySelector('[data-photo-pin]:not([hidden])')) return; // don't wipe a PIN being typed
+    const e = exOf(el.dataset.photoSec); if (e) el.innerHTML = photoSecHtml(e);
+  });
+}
+async function loadPhotos() {
+  const r = await api('GET', '/photos');
+  const next = r.photos || {};
+  if (!same(next, photos)) { photos = next; store(PHOTOS_CACHE, photos); updatePhotoUI(); }
+}
+/* shrink big phone photos before upload: longest side 1280px, JPEG */
+function resizeImage(file) {
+  return new Promise((ok, bad) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, 1280 / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      ok(c.toDataURL('image/jpeg', 0.82).split(',')[1]);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); bad(new Error('That file isn\u2019t a photo this browser can read.')); };
+    img.src = url;
+  });
+}
+function closePinBox(sec) { const p = sec && sec.querySelector('[data-photo-pin]'); if (p) { p.hidden = true; p.querySelector('input').value = ''; } }
+function photoMsg(sec, t, ok) { const m = sec && sec.querySelector('[data-photo-msg]'); if (m) { m.textContent = t; m.className = 'form-msg ' + (ok ? 'ok' : 'err'); } }
+async function sendPhoto(sec, id, pin) {
+  photoMsg(sec, 'Uploading…', true);
+  try {
+    const r = await api('POST', '/photo/' + encodeURIComponent(id), { pin, data: photoPending, type: 'image/jpeg' });
+    adminPin = pin; photoPending = null; photos[id] = r.ver; store(PHOTOS_CACHE, photos);
+    closePinBox(sec); updatePhotoUI(); toast('Photo saved. Every profile can see it now.');
+  } catch (e) {
+    if (e.status === 403 || e.status === 429) { adminPin = null; const p = sec.querySelector('[data-photo-pin]'); if (p) p.hidden = false; }
+    photoMsg(sec, e.message);
+  }
+}
+$('photoFile').addEventListener('change', async ev => {
+  const f = ev.target.files && ev.target.files[0]; ev.target.value = '';
+  const sec = photoTarget && document.querySelector(`[data-photo-sec="${photoTarget}"]`);
+  if (!f || !sec) return;
+  try { photoPending = await resizeImage(f); } catch (e) { photoMsg(sec, e.message); return; }
+  if (adminPin) { sendPhoto(sec, photoTarget, adminPin); return; }
+  const p = sec.querySelector('[data-photo-pin]'); p.hidden = false; p.querySelector('input').focus();
+  photoMsg(sec, 'Enter the admin PIN to upload.', true);
+});
+document.addEventListener('click', async ev => {
+  const z = ev.target.closest('[data-zoom]');
+  if (z) { $('lightImg').src = z.src; $('lightImg').alt = z.alt; $('lightbox').showModal(); return; }
+  const b = ev.target.closest('[data-photo]'); if (!b) return;
+  const sec = b.closest('[data-photo-sec]'), id = sec.dataset.photoSec;
+  if (b.dataset.photo === 'pick') { photoTarget = id; $('photoFile').click(); return; }
+  if (b.dataset.photo === 'confirm') {
+    const pin = sec.querySelector('[data-photo-pin] input').value;
+    if (!pin) { photoMsg(sec, 'Enter the admin PIN.'); return; }
+    if (sec.dataset.removing) { delete sec.dataset.removing; removePhoto(sec, id, pin); return; }
+    if (!photoPending) { photoMsg(sec, 'Choose a photo first.'); return; }
+    sendPhoto(sec, id, pin); return;
+  }
+  if (b.dataset.photo === 'remove') {
+    if (!confirm('Remove this photo for every profile?')) return;
+    if (adminPin) { removePhoto(sec, id, adminPin); return; }
+    sec.dataset.removing = '1';
+    const p = sec.querySelector('[data-photo-pin]'); p.hidden = false; p.querySelector('button').textContent = 'Remove'; p.querySelector('input').focus();
+  }
+});
+async function removePhoto(sec, id, pin) {
+  photoMsg(sec, 'Removing…', true);
+  try { await api('POST', '/photo/' + encodeURIComponent(id) + '/delete', { pin }); adminPin = pin; delete photos[id]; store(PHOTOS_CACHE, photos); closePinBox(sec); updatePhotoUI(); toast('Photo removed'); }
+  catch (e) { if (e.status === 403 || e.status === 429) adminPin = null; photoMsg(sec, e.message); }
+}
+$('lightClose').onclick = () => $('lightbox').close();
+$('lightbox').addEventListener('click', e => { if (e.target === $('lightbox')) $('lightbox').close(); });
+
+/* ---------- pull to refresh ---------- */
+async function refreshAll() {
+  try { await Promise.all([pull(), loadProfiles(), loadPhotos()]); toast('Up to date'); }
+  catch (e) { setSync(e.status === 404 ? 'missing' : 'offline'); toast('Couldn\u2019t refresh. Check your connection.'); }
+}
+(function () {
+  const el = $('ptr'), label = el.querySelector('span'), PULL = 70;
+  let y0 = null, d = 0, busy = false;
+  const reset = () => { el.classList.remove('dragging', 'ready'); el.style.transform = 'translateX(-50%)'; label.textContent = 'Pull to refresh'; };
+  addEventListener('touchstart', e => {
+    y0 = (busy || window.scrollY > 0 || document.querySelector('dialog[open]') || e.touches.length > 1) ? null : e.touches[0].clientY; d = 0;
+  }, { passive: true });
+  addEventListener('touchmove', e => {
+    if (y0 === null) return;
+    d = Math.max(0, (e.touches[0].clientY - y0) * 0.5);
+    if (!d) { reset(); return; }
+    el.classList.add('dragging'); el.classList.toggle('ready', d > PULL);
+    el.style.transform = `translateX(-50%) translateY(${Math.min(d, PULL + 30)}px)`;
+    label.textContent = d > PULL ? 'Release to refresh' : 'Pull to refresh';
+  }, { passive: true });
+  addEventListener('touchend', async () => {
+    if (y0 === null) return;
+    const go = d > PULL; y0 = null;
+    if (!go) { reset(); return; }
+    busy = true; el.classList.remove('dragging', 'ready'); el.classList.add('busy'); label.textContent = 'Refreshing…';
+    el.style.transform = 'translateX(-50%) translateY(60px)';
+    await refreshAll();
+    busy = false; el.classList.remove('busy'); reset();
+  });
+})();
+
 function renderPlan() {
   const plan = $('plan');
   ANIM.unmountWithin(plan);
@@ -1605,6 +1761,7 @@ let view = 'workout';
 function refresh() { if (view === 'history') renderHistory(); else renderWorkout(); }
 openProfile(pid);
 loadProfiles();
+loadPhotos().catch(() => {});
 </script>
 </body>
 </html>
