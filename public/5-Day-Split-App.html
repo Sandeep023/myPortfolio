@@ -73,11 +73,16 @@ dialog.sheet::backdrop{background:rgba(0,0,0,.4)}
 .migrate{margin-top:16px;background:var(--surface);border:1.5px solid var(--blue);border-radius:14px;padding:12px 14px;font-size:15px}
 .migrate .actions{margin-top:10px}
 
-/* exercise photos */
+/* exercise photos (up to 3) */
 .photo-sec{margin-top:14px}
-.photo-sec figure{margin:0}
-.photo-sec img{display:block;width:100%;max-height:340px;object-fit:cover;border-radius:12px;background:var(--soft);cursor:zoom-in}
-.photo-sec figcaption{font-size:12px;color:var(--muted);margin-top:4px}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.photo-grid.n1{grid-template-columns:1fr}
+.photo-grid.n2{grid-template-columns:1fr 1fr}
+.photo-grid figure{margin:0;position:relative}
+.photo-grid img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px;background:var(--soft);cursor:zoom-in}
+.photo-grid.n1 img{aspect-ratio:auto;max-height:340px}
+.photo-del{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:18px;line-height:30px;padding:0;cursor:pointer}
+.photo-count{font-size:13px;color:var(--muted)}
 .photo-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
 .photo-tools .btn{padding:7px 12px;font-size:14px}
 .photo-pin{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
@@ -1349,7 +1354,7 @@ function cardHtml(m, e, row) {
     <button class="ex-head" aria-expanded="false" aria-controls="b_${row}">
       <div class="thumb" data-anim="${row}">${thumbVideo(e)}</div>
       <div class="ex-main">
-        <div class="ex-name">${esc(e.name)}<svg class="photo-ind" data-photo-ind="${row}" ${photos[e.id] ? '' : 'hidden'} viewBox="0 0 24 24" aria-label="Has a photo"><path d="M4 8h3l2-2h6l2 2h3v11H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+        <div class="ex-name">${esc(e.name)}<svg class="photo-ind" data-photo-ind="${row}" ${photoList(e.id).length ? '' : 'hidden'} viewBox="0 0 24 24" aria-label="Has a photo"><path d="M4 8h3l2-2h6l2 2h3v11H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
         <div class="ex-dose"><b>${esc(e.sets)} × ${esc(e.reps)}</b>rest ${esc(e.rest)}</div>
         <div class="ex-tgt">${esc(e.primary)}: ${esc(e.tgt)}</div>
         ${fitsMode(e) ? '' : `<div class="cat-tag" title="No ${esc(MODES[getMode()].toLowerCase())} version for this exercise">${esc(CAT_SHORT[e.cat])}, no ${esc(MODES[getMode()].toLowerCase())} option</div>`}
@@ -1400,32 +1405,37 @@ function bodyHtml(e, row) {
     <p class="h4">More examples</p><div class="videos">${vids}</div>`;
 }
 /* ---------- exercise photos ----------
-   One photo per exercise, shown to every profile. Only Sandeep's profile shows the add/replace/remove
+   Up to 3 photos per exercise, shown to every profile. Only Sandeep's profile shows the add/remove
    buttons, and the server also requires the admin PIN. The PIN is kept in memory for this visit only. */
-const PHOTOS_CACHE = 'split5_photos_v1';
-let photos = load(PHOTOS_CACHE, {});
+const PHOTOS_CACHE = 'split5_photos_v2', MAX_PHOTOS = 3;
+const asList = m => { const o = {}; for (const [k, v] of Object.entries(m || {})) if (Array.isArray(v) && v.length) o[k] = v.slice(0, MAX_PHOTOS); return o; };
+let photos = asList(load(PHOTOS_CACHE, {}));
 let adminPin = null, photoTarget = null, photoPending = null;
-const photoUrl = id => API + '/photo/' + encodeURIComponent(id) + '?v=' + photos[id];
+const photoList = id => photos[id] || [];
+const photoUrl = (id, ph) => API + '/photo/' + encodeURIComponent(id) + '/' + ph;
 const canEditPhotos = () => pid === 'sandeep';
 function photoSecHtml(e) {
-  const has = !!photos[e.id];
-  let h = has ? `<p class="h4">Photo</p><figure><img src="${photoUrl(e.id)}" alt="Photo for ${esc(e.name)}" loading="lazy" data-zoom></figure>` : '';
-  if (canEditPhotos()) {
-    h += `<div class="photo-tools"><button class="btn ghost" data-photo="pick">${has ? 'Replace photo' : 'Add photo'}</button>${has ? '<button class="btn ghost" data-photo="remove">Remove</button>' : ''}<span class="form-msg" data-photo-msg role="status"></span></div>
+  const list = photoList(e.id), edit = canEditPhotos();
+  let h = list.length ? `<p class="h4">Photos</p><div class="photo-grid n${list.length}">${list.map((ph, k) =>
+    `<figure><img src="${photoUrl(e.id, ph)}" alt="Photo ${k + 1} for ${esc(e.name)}" loading="lazy" data-zoom>${edit ? `<button class="photo-del" data-photo="remove" data-ph="${ph}" aria-label="Remove photo ${k + 1}">×</button>` : ''}</figure>`).join('')}</div>` : '';
+  if (edit) {
+    const full = list.length >= MAX_PHOTOS;
+    h += `<div class="photo-tools">${full ? '' : `<button class="btn ghost" data-photo="pick">${list.length ? 'Add another photo' : 'Add photo'}</button>`}<span class="photo-count">${list.length} of ${MAX_PHOTOS} photos${full ? ' (remove one to add more)' : ''}</span><span class="form-msg" data-photo-msg role="status"></span></div>
       <div class="photo-pin" data-photo-pin hidden><input type="password" inputmode="numeric" autocomplete="off" placeholder="Admin PIN" aria-label="Admin PIN"><button class="btn" data-photo="confirm">Upload</button></div>`;
   }
   return h;
 }
 function updatePhotoUI() {
-  document.querySelectorAll('[data-photo-ind]').forEach(el => { el.hidden = !photos[el.dataset.photoInd]; });
+  document.querySelectorAll('[data-photo-ind]').forEach(el => { el.hidden = !photoList(el.dataset.photoInd).length; });
   document.querySelectorAll('[data-photo-sec]').forEach(el => {
     if (el.querySelector('[data-photo-pin]:not([hidden])')) return; // don't wipe a PIN being typed
     const e = exOf(el.dataset.photoSec); if (e) el.innerHTML = photoSecHtml(e);
   });
 }
+function setPhotos(id, list) { if (list && list.length) photos[id] = list.slice(0, MAX_PHOTOS); else delete photos[id]; store(PHOTOS_CACHE, photos); }
 async function loadPhotos() {
   const r = await api('GET', '/photos');
-  const next = r.photos || {};
+  const next = asList(r.photos);
   if (!same(next, photos)) { photos = next; store(PHOTOS_CACHE, photos); updatePhotoUI(); }
 }
 /* shrink big phone photos before upload: longest side 1280px, JPEG */
@@ -1449,10 +1459,11 @@ async function sendPhoto(sec, id, pin) {
   photoMsg(sec, 'Uploading…', true);
   try {
     const r = await api('POST', '/photo/' + encodeURIComponent(id), { pin, data: photoPending, type: 'image/jpeg' });
-    adminPin = pin; photoPending = null; photos[id] = r.ver; store(PHOTOS_CACHE, photos);
+    adminPin = pin; photoPending = null; setPhotos(id, r.photos);
     closePinBox(sec); updatePhotoUI(); toast('Photo saved. Every profile can see it now.');
   } catch (e) {
     if (e.status === 403 || e.status === 429) { adminPin = null; const p = sec.querySelector('[data-photo-pin]'); if (p) p.hidden = false; }
+    if (e.status === 409) { photoPending = null; closePinBox(sec); loadPhotos().catch(() => {}); }
     photoMsg(sec, e.message);
   }
 }
@@ -1462,7 +1473,7 @@ $('photoFile').addEventListener('change', async ev => {
   if (!f || !sec) return;
   try { photoPending = await resizeImage(f); } catch (e) { photoMsg(sec, e.message); return; }
   if (adminPin) { sendPhoto(sec, photoTarget, adminPin); return; }
-  const p = sec.querySelector('[data-photo-pin]'); p.hidden = false; p.querySelector('input').focus();
+  const p = sec.querySelector('[data-photo-pin]'); p.hidden = false; p.querySelector('button').textContent = 'Upload'; p.querySelector('input').focus();
   photoMsg(sec, 'Enter the admin PIN to upload.', true);
 });
 document.addEventListener('click', async ev => {
@@ -1470,24 +1481,27 @@ document.addEventListener('click', async ev => {
   if (z) { $('lightImg').src = z.src; $('lightImg').alt = z.alt; $('lightbox').showModal(); return; }
   const b = ev.target.closest('[data-photo]'); if (!b) return;
   const sec = b.closest('[data-photo-sec]'), id = sec.dataset.photoSec;
-  if (b.dataset.photo === 'pick') { photoTarget = id; $('photoFile').click(); return; }
+  if (b.dataset.photo === 'pick') {
+    if (photoList(id).length >= MAX_PHOTOS) { photoMsg(sec, 'This exercise already has ' + MAX_PHOTOS + ' photos.'); return; }
+    photoTarget = id; delete sec.dataset.removing; $('photoFile').click(); return;
+  }
   if (b.dataset.photo === 'confirm') {
     const pin = sec.querySelector('[data-photo-pin] input').value;
     if (!pin) { photoMsg(sec, 'Enter the admin PIN.'); return; }
-    if (sec.dataset.removing) { delete sec.dataset.removing; removePhoto(sec, id, pin); return; }
+    if (sec.dataset.removing) { const ph = sec.dataset.removing; delete sec.dataset.removing; removePhoto(sec, id, ph, pin); return; }
     if (!photoPending) { photoMsg(sec, 'Choose a photo first.'); return; }
     sendPhoto(sec, id, pin); return;
   }
   if (b.dataset.photo === 'remove') {
     if (!confirm('Remove this photo for every profile?')) return;
-    if (adminPin) { removePhoto(sec, id, adminPin); return; }
-    sec.dataset.removing = '1';
+    if (adminPin) { removePhoto(sec, id, b.dataset.ph, adminPin); return; }
+    sec.dataset.removing = b.dataset.ph; photoPending = null;
     const p = sec.querySelector('[data-photo-pin]'); p.hidden = false; p.querySelector('button').textContent = 'Remove'; p.querySelector('input').focus();
   }
 });
-async function removePhoto(sec, id, pin) {
+async function removePhoto(sec, id, ph, pin) {
   photoMsg(sec, 'Removing…', true);
-  try { await api('POST', '/photo/' + encodeURIComponent(id) + '/delete', { pin }); adminPin = pin; delete photos[id]; store(PHOTOS_CACHE, photos); closePinBox(sec); updatePhotoUI(); toast('Photo removed'); }
+  try { const r = await api('POST', '/photo/' + encodeURIComponent(id) + '/' + ph + '/delete', { pin }); adminPin = pin; setPhotos(id, r.photos); closePinBox(sec); updatePhotoUI(); toast('Photo removed'); }
   catch (e) { if (e.status === 403 || e.status === 429) adminPin = null; photoMsg(sec, e.message); }
 }
 $('lightClose').onclick = () => $('lightbox').close();
@@ -1636,20 +1650,23 @@ let renderedMode = null;
 function renderWorkout() { renderedMode = getMode(); renderHero(); renderProgress(); renderPlan(); }
 
 /* ---------- rest timer ---------- */
-let tInt = null, tLeft = 0;
+let tInt = null, tLeft = 0, tDone = null;
 const fmt = s => { s = Math.max(0, s); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
 function tick() {
   tLeft--; $('tTime').textContent = fmt(tLeft);
-  if (tLeft <= 0) { clearInterval(tInt); tInt = null; beep(); $('tName').textContent = 'Rest done. Next set.'; }
+  if (tLeft <= 0) {
+    clearInterval(tInt); tInt = null; beep(); $('tName').textContent = 'Rest done. Next set.';
+    tDone = setTimeout(() => { tDone = null; stopRest(); }, 2500); // close the bar on its own
+  }
 }
 function startRest(secs, name) {
   stopRest(true); tLeft = secs;
   $('tName').textContent = 'Rest after ' + name; $('tTime').textContent = fmt(tLeft);
   $('timer').classList.add('show'); tInt = setInterval(tick, 1000);
 }
-function stopRest(keep) { if (tInt) { clearInterval(tInt); tInt = null; } if (!keep) $('timer').classList.remove('show'); }
+function stopRest(keep) { if (tInt) { clearInterval(tInt); tInt = null; } if (tDone) { clearTimeout(tDone); tDone = null; } if (!keep) $('timer').classList.remove('show'); }
 $('tStop').onclick = () => stopRest();
-$('tAdd').onclick = () => { tLeft = Math.max(0, tLeft) + 15; $('tTime').textContent = fmt(tLeft); if (!tInt) { $('tName').textContent = 'Rest'; tInt = setInterval(tick, 1000); } };
+$('tAdd').onclick = () => { if (tDone) { clearTimeout(tDone); tDone = null; } tLeft = Math.max(0, tLeft) + 15; $('tTime').textContent = fmt(tLeft); if (!tInt) { $('tName').textContent = 'Rest'; tInt = setInterval(tick, 1000); } };
 function beep() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)(), o = ctx.createOscillator(), g = ctx.createGain();

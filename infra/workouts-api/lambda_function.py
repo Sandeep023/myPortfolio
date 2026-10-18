@@ -11,10 +11,10 @@ Lambda function URL (CORS handled by the URL config). Routes:
   POST   /p/{id}/history                {session}
   DELETE /p/{id}/history/{sid}
   POST   /p/{id}/import                 {state, history}   replace a profile's data (restore)
-  GET    /photos                                           {exerciseId: version} for every exercise photo
-  GET    /photo/{exerciseId}                               the image (cache forever; URL carries ?v=version)
-  POST   /photo/{exerciseId}            {pin, data, type}  add/replace a photo (admin PIN, base64 JPEG/PNG/WebP)
-  POST   /photo/{exerciseId}/delete     {pin}              remove a photo (admin PIN)
+  GET    /photos                                           {exerciseId: [photoId, ...]} (up to 3 per exercise)
+  GET    /photo/{exerciseId}/{photoId}                     one image (cache forever; ids never change)
+  POST   /photo/{exerciseId}            {pin, data, type}  add a photo (admin PIN, base64 JPEG/PNG/WebP; max 3)
+  POST   /photo/{exerciseId}/{photoId}/delete  {pin}       remove one photo (admin PIN)
 Profiles are never deleted through the API.
 """
 import base64, hashlib, hmac, json, os, re, secrets, time
@@ -25,6 +25,8 @@ TABLE = boto3.resource("dynamodb").Table(os.environ["TABLE"])
 S3 = boto3.client("s3")
 BUCKET = os.environ.get("BUCKET", "")
 MAX_PHOTO = 2_500_000
+MAX_PHOTOS_PER_EXERCISE = 3
+PID_RE = re.compile(r"^[0-9]{1,16}$")
 IMG_TYPES = {"image/jpeg": b"\xff\xd8\xff", "image/png": b"\x89PNG", "image/webp": b"RIFF"}
 ID_RE = re.compile(r"^[a-z0-9-]{1,48}$")
 SID_RE = re.compile(r"^[A-Za-z0-9_-]{1,48}$")
@@ -128,17 +130,21 @@ def handler(event, context):
             return resp(201, {"profile": {"id": pid, "name": name, "createdAt": item["createdAt"]}})
 
         if parts == ["photos"] and method == "GET":
-            items = TABLE.query(KeyConditionExpression=Key("pk").eq("PHOTOS"))["Items"]
-            return resp(200, {"photos": {i["sk"]: int(i["ver"]) for i in items}})
+            out = {}
+            for it in TABLE.query(KeyConditionExpression=Key("pk").eq("PHOTOS"))["Items"]:
+                ex, _, ph = it["sk"].partition("#")
+                out.setdefault(ex, []).append(int(ph or it["ver"]))
+            return resp(200, {"photos": {k: sorted(v) for k, v in out.items()}})
 
         if len(parts) >= 2 and parts[0] == "photo" and ID_RE.match(parts[1]):
             ex = parts[1]
-            key = "photos/" + ex
-            if len(parts) == 2 and method == "GET":
+            existing = sorted(int(it["sk"].partition("#")[2]) for it in
+                              TABLE.query(KeyConditionExpression=Key("pk").eq("PHOTOS") & Key("sk").begins_with(ex + "#"))["Items"])
+            if len(parts) == 3 and method == "GET" and PID_RE.match(parts[2]):
                 try:
-                    o = S3.get_object(Bucket=BUCKET, Key=key)
+                    o = S3.get_object(Bucket=BUCKET, Key="photos/%s/%s" % (ex, parts[2]))
                 except S3.exceptions.NoSuchKey:
-                    return resp(404, {"error": "No photo for this exercise."})
+                    return resp(404, {"error": "No such photo."})
                 return {"statusCode": 200, "isBase64Encoded": True, "body": base64.b64encode(o["Body"].read()).decode(),
                         "headers": {"content-type": o.get("ContentType", "image/jpeg"), "cache-control": "public, max-age=31536000, immutable"}}
             if len(parts) == 2 and method == "POST":
@@ -146,6 +152,8 @@ def handler(event, context):
                 err = check_admin(b.get("pin"))
                 if err:
                     return err
+                if len(existing) >= MAX_PHOTOS_PER_EXERCISE:
+                    return resp(409, {"error": "This exercise already has %d photos. Remove one first." % MAX_PHOTOS_PER_EXERCISE})
                 ctype = str(b.get("type", "image/jpeg"))
                 if ctype not in IMG_TYPES:
                     return resp(400, {"error": "Use a JPEG, PNG or WebP photo."})
@@ -155,17 +163,17 @@ def handler(event, context):
                     return resp(400, {"error": "That photo couldn't be read."})
                 if not data.startswith(IMG_TYPES[ctype]) or len(data) > MAX_PHOTO:
                     return resp(400, {"error": "That photo is too large or not an image."})
-                S3.put_object(Bucket=BUCKET, Key=key, Body=data, ContentType=ctype)
-                ver = int(time.time() * 1000)
-                TABLE.put_item(Item={"pk": "PHOTOS", "sk": ex, "ver": ver})
-                return resp(200, {"ok": True, "ver": ver})
-            if parts[2:] == ["delete"] and method == "POST":
+                ph = int(time.time() * 1000)
+                S3.put_object(Bucket=BUCKET, Key="photos/%s/%d" % (ex, ph), Body=data, ContentType=ctype)
+                TABLE.put_item(Item={"pk": "PHOTOS", "sk": "%s#%d" % (ex, ph), "ver": ph})
+                return resp(200, {"ok": True, "photos": existing + [ph]})
+            if len(parts) == 4 and parts[3] == "delete" and method == "POST" and PID_RE.match(parts[2]):
                 err = check_admin(body_of(event).get("pin"))
                 if err:
                     return err
-                S3.delete_object(Bucket=BUCKET, Key=key)
-                TABLE.delete_item(Key={"pk": "PHOTOS", "sk": ex})
-                return resp(200, {"ok": True})
+                S3.delete_object(Bucket=BUCKET, Key="photos/%s/%s" % (ex, parts[2]))
+                TABLE.delete_item(Key={"pk": "PHOTOS", "sk": "%s#%s" % (ex, parts[2])})
+                return resp(200, {"ok": True, "photos": [p for p in existing if str(p) != parts[2]]})
 
         if parts == ["admin", "check"] and method == "POST":
             err = check_admin(body_of(event).get("pin"))
